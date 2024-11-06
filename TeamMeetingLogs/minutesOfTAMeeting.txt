@@ -1,0 +1,6 @@
+Meeting 11/6 @ 2:00
+showed TA which features we started and committed this week
+TA explained github projects tab better for us
+**Need to have some sort of demo ready for next week**
+  - registration/login page
+  - similar to lab 8
