@@ -1,0 +1,24 @@
+{{> message}}
+
+<h2>Add Review Test</h2>
+<form method="post" action="/addReview">
+    <label for="review"> Review: </label>
+    <input type="text" name="review" required /> <br>
+
+    <label for="rating"> Rating: </label>
+    <input type="number" name="rating" required /> <br>
+
+    <label for="section"> Seat Section: </label>
+    <input type="number" name="section" required /> <br>
+
+    <label for="row"> Seat Row: </label>
+    <input type="number" name="row" required /> <br>
+
+    <label for="seatNumber"> Seat Number: </label>
+    <input type="number" name="seatNumber" required /> <br>
+
+    <label for="eventName"> Event Name: </label>
+    <input type="text" name="eventName" required /> <br>
+
+    <input type="submit" value="submit" /> <br>
+</form>
