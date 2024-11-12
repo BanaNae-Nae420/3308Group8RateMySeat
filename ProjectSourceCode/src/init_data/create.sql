@@ -16,12 +16,10 @@ CREATE TABLE events (
     -- FOREIGN KEY (stadium_id) REFERENCES stadiums(stadium_id)
 );
 
-CREATE TABLE seats (
-    seat_id SERIAL PRIMARY KEY,
+CREATE TABLE IF NOT EXISTS seats (
+    row INT PRIMARY KEY,
     section INT,
-    row INT,
-    seat_number INT,
-    -- FOREIGN KEY (stadium_id) REFERENCES stadiums(stadium_id)
+    seat_number INT[],
 );
 
 CREATE TABLE photos (
@@ -35,7 +33,8 @@ CREATE TABLE reviews (
     review_id SERIAL PRIMARY KEY,
     FOREIGN KEY (username) REFERENCES users(username),
     FOREIGN KEY (event_id) REFERENCES events(event_id),
-    FOREIGN KEY (seat_id) REFERENCES seats(seat_id),
+    FOREIGN KEY (section) REFERENCES seats(section),
+    FOREIGN KEY (seat_number) REFERENCES seats(seat_number),
     -- FOREIGN KEY (photo_id) REFERENCES photos(photo_id), -- may keep
     rating INT NOT NULL,
     comment TEXT
