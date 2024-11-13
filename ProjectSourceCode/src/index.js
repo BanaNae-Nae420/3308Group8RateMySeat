@@ -163,45 +163,6 @@ app.post('/login', async (req,res) => {
     }
 });
 
-app.post('/addReview', async (req,res) => {
-  const review = req.body.review; //
-  const rating = req.body.rating; //
-  const section = req.body.sections;//
-  const row = req.body.row;//
-  const seat = req.body.seatNumber;//
-  const eventName = req.body.eventName;
-  const event = eventName.toUpperCase();
-  const eventDate = req.body.eventDate;
-  const image = req.body.eventImage; //
-  const user = req.session.user.username;
-  
-  const query = [`INSERT INTO reviews (review,rating) VALUES ('${review}', ${rating})`, 
-  `INSERT INTO images (image_url) VALUES ('${image}')`,
-   `INSERT INTO seats (section, row, seat_number) SELECT ${section}, ${row}, ${seat} WHERE NOT EXISTS (SELECT 1 FROM seats WHERE section = ${section} AND row = ${row} AND seat_number = ${seat})`, 
-   `INSERT INTO events (event_name, event_date) VALUES ('${event}', '${eventDate}')`,
-   `INSERT INTO reviews_to_users (username, review_id) VALUES ('${user}', (SELECT review_id FROM reviews WHERE review = '${review}' LIMIT 1))`, 
-   `INSERT INTO reviews_to_images (image_id, review_id) VALUES ((SELECT image_id FROM images WHERE image_url = '${image}' LIMIT 1), (SELECT review_id FROM reviews WHERE review = '${review}' LIMIT 1))`,
-   `INSERT INTO reviews_to_seats (review_id, seat_id) VALUES ((SELECT review_id FROM reviews WHERE review = '${review}' LIMIT 1), (SELECT seat_id FROM seats WHERE section = ${section} AND row = ${row} AND seat_number = ${seat}))`, 
-   `INSERT INTO reviews_to_events (review_id, event_id) VALUES ((SELECT review_id FROM reviews WHERE review = '${review}' LIMIT 1), (SELECT event_id FROM events WHERE event_date = '${event_date}' AND event_name = '${event}')`
-  ];
-
-  for  (let i = 0; i < query.length; i++)
-  {
-    const num = i+1;
-    db.any(query[i])
-    db.any(query[i])
-      .catch(function (err) {
-        console.error(
-          'Internal Server Error (HTTP 500): Oops! Something went wrong! In Query ' + num,
-          err
-        );
-        res.status(500).json({
-          error: err.message,
-        });
-      });
-  }
-
-});
 
 
 // Authentication Middleware.

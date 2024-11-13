@@ -15,8 +15,8 @@ CREATE TABLE IF NOT EXISTS reviews (
 DROP TABLE IF EXISTS images CASCADE;
 CREATE TABLE IF NOT EXISTS images (
   image_id SERIAL PRIMARY KEY NOT NULL,
-  image_url VARCHAR(255) NOT NULL,
---   image_caption VARCHAR(200)
+  image_url VARCHAR(300) NOT NULL,
+  image_caption VARCHAR(200)
 );
 
 -- stadium seat
