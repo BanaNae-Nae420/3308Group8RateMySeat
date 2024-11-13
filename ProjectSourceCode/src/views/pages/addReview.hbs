@@ -1,7 +1,11 @@
+<script src="../../javascript/script.js" defer></script>
+<link rel="stylesheet" href="../../css/style.css"/>
 {{> message}}
 
 <h2>Add Review Test</h2>
-<form method="post" action="/addReview">
+
+<div class=card>
+<form method="POST" action="/addReview">
     <label for="review"> Review: </label>
     <input type="text" name="review" required /> <br>
 
@@ -9,8 +13,9 @@
     <input type="number" name="rating" required /> <br>
 
     <label for="section"> Seat Section: </label>
-    <input type="number" name="section" required /> <br>
-
+    <select name="sections" id="sections">
+        <option disabled selected value>select section</option>
+    </select> <br>
     <label for="row"> Seat Row: </label>
     <input type="number" name="row" required /> <br>
 
@@ -20,5 +25,12 @@
     <label for="eventName"> Event Name: </label>
     <input type="text" name="eventName" required /> <br>
 
+    <label for="eventDate">Event Date: </label>
+    <input type="date" name="eventDate" required /> <br>
+
+    <label for="eventImage">Upload Image: </label>
+    <input type="text" name="eventImage"> <br>
+
     <input type="submit" value="submit" /> <br>
 </form>
+</div>

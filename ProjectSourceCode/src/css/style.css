@@ -1,0 +1,15 @@
+.card {
+    box-shadow: 0 3px 10pxx rgb( 0 0 0 / 0.2);
+}
+
+select {
+    width: 120px;
+}
+
+input[type="submit"] {
+    background-color: lightgray;
+}
+
+input[type="submit"]:hover {
+    background-color:rgb(168, 168, 168);
+}
