@@ -4,3 +4,9 @@ created docker-compose and env file
 created index.js and login/register api  
 nav bar partial
 
+Updates After Meeting (11/12)
+finished UAT plans for lab11
+Carson - working on adding data for populating reviews and adding a /get_reviews API endpoint
+Aiden - working on front end for register and login pages
+Derek - working on front end for viewing reviews
+Jordan - working on a forgot password implementation 
