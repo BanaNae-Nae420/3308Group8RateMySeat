@@ -1,6 +1,6 @@
 // ********************** Initialize server **********************************
 
-//importing server and db for testing
+//importing db,server,app for testing
 const {db, server, app} = require('../src/index');
 // ********************** Import Libraries ***********************************
 
@@ -28,7 +28,7 @@ describe('Lab 11 Server Test', () => {
   });
 }); 
 
-// *********************** TODO: WRITE 2 UNIT TESTCASES **************************
+// *********************** UNIT TESTCASES **************************
 
 // *******  Testing /register API  *******
 // Positive Testcase :
@@ -70,13 +70,72 @@ describe('Testing /register API', () => {
           done();
         });
     });
-  });
+});
 
+
+// *******  Testing /login API  *******
+// Positive Testcase :
+// API: /login
+// Input: {{username: 'testuser', password: 'testpass123'}
+// Expect: res.status == 200
+// Result: This test case should pass and return a status 200.
+// Explanation: The testcase will call the /login API with the following input
+// and expects the API to return a status of 200.
+
+// Negative Testcase :
+// need to write negative testcase once /login is improved upon
+
+describe('Testing /login API', () => {
+  let agent;
+  const testUser = {
+    username: 'testuser',
+    password: 'testpass123',
+  };
+  
+  before(async () => {
+    // Clear users table and create test user
+    await db.query('TRUNCATE TABLE users CASCADE');
+    const hashedPassword = await bcrypt.hash(testUser.password, 10);
+    await db.query('INSERT INTO users (username, password) VALUES ($1, $2)', [
+      testUser.username,
+      hashedPassword,
+    ]);
+  });
+  
+  beforeEach(() => {
+    // Create new agent for session handling
+    agent = chai.request.agent(app);
+  });
+  
+  afterEach(() => {
+      // Clear cookie after each test
+    agent.close();
+  });
+  
+  after(async () => {
+    // Clean up database
+    await db.query('TRUNCATE TABLE users CASCADE');
+  });
+  
+  it('should login succesfully', async () => {
+    // attempt to login
+    const res = await agent.post('/login').send(testUser);
+  
+    // expect 200 status 
+    expect(res).to.have.status(200);
+  });
+  
+  // finish negative test after fixing /login
+  /*it('should fail to login', async () => {
+    
+  }); */ 
+}); 
+    
 
 // *******  Testing /addReview API  *******
 // Positive Testcase :
 // API: /addReview
-// Input: 
+// Input: {{review: 'Great event!', rating: 5, section: 232, row: 1, seatNumber: 20, eventName: 'Colorado Rockies vs San Francisco Giants', image_url: 'http://example.com/image.jpg'}}
 // Expect: res.status == 200
 // Result: This test case should pass and return a status 200.
 // Explanation: The testcase will call the /addReview API after creating a session using testUser. Since
@@ -84,10 +143,10 @@ describe('Testing /register API', () => {
 
 // Negative Testcase :
 // API: /addReview
-// Input: 
+// Input: {{review: 'Great event!', rating: 5, section: 232, row: 1, seatNumber: 20, eventName: 'Colorado Rockies vs San Francisco Giants'}}
 // Expect: res.status == 200
 // Result: This test case should pass and return a status 200.
-// Explanation: The testcase will call the /addReview API but now create a session. Since there is 
+// Explanation: The testcase will call the /addReview API but not create a session. Since there is 
 // no session, the API should rediect to /login
 
 describe('Testing /addReview API', () => {
@@ -134,9 +193,8 @@ describe('Testing /addReview API', () => {
       section: 232,
       row: 1,
       seatNumber: 20,
-      eventName: 'zach bryan',
+      eventName: 'Colorado Rockies vs San Francisco Giants',
       image_url: 'http://example.com/image.jpg',
-      image_caption: 'test image',
     };
   
     // Send POST request to /addReview
@@ -156,7 +214,7 @@ describe('Testing /addReview API', () => {
       section: 232,
       row: 1,
       seatNumber: 20,
-      eventName: 'zach bryan',
+      eventName: 'Colorado Rockies vs San Francisco Giants',
     };
       
     // Send POST request to /addReview

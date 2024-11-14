@@ -1,0 +1,8 @@
+{{#each sections}}
+    <h2>{{this.level}}</h2>
+    <ul>
+      {{#each (sectionRange this.start this.end)}}
+        <li><a href="/getReview/{{this}}">Section {{this}}</a></li>
+      {{/each}}
+    </ul>
+{{/each}}
