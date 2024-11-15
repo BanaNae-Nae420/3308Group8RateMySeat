@@ -21,44 +21,44 @@ const db = pgp({
 // function to insert data into users
 async function insertHashedUsers() {
     const users = [
-        [
-        { "username": "test1", "password": "test1" },
-        { "username": "john_doe", "password": "password123" },
-        { "username": "jane_smith", "password": "password124" },
-        { "username": "michael_jones", "password": "password125" },
-        { "username": "mary_johnson", "password": "password126" },
-        { "username": "robert_brown", "password": "password127" },
-        { "username": "linda_white", "password": "password128" },
-        { "username": "david_taylor", "password": "password129" },
-        { "username": "patricia_lee", "password": "password130" },
-        { "username": "james_wilson", "password": "password131" },
-        { "username": "elizabeth_moore", "password": "password132" },
-        { "username": "william_anderson", "password": "password133" },
-        { "username": "susan_thomas", "password": "password134" },
-        { "username": "joseph_jackson", "password": "password135" },
-        { "username": "nancy_white", "password": "password136" },
-        { "username": "charles_harris", "password": "password137" },
-        { "username": "barbara_martin", "password": "password138" },
-        { "username": "thomas_young", "password": "password139" },
-        { "username": "sarah_king", "password": "password140" },
-        { "username": "christopher_scott", "password": "password141" },
-        { "username": "karen_adams", "password": "password142" },
-        { "username": "daniel_baker", "password": "password143" },
-        { "username": "betty_gonzalez", "password": "password144" },
-        { "username": "george_carter", "password": "password145" },
-        { "username": "dorothy_wilson", "password": "password146" },
-        { "username": "paul_brown", "password": "password147" },
-        { "username": "jennifer_davis", "password": "password148" },
-        { "username": "mark_miller", "password": "password149" },
-        { "username": "martha_williams", "password": "password150" },
-        { "username": "steven_clark", "password": "password151" },
-        { "username": "nancy_rodgers", "password": "password152" }
+    [
+        { "username": "test1", "password": "test1", "question": "Alice" },
+        { "username": "john_doe", "password": "password123", "question": "Bob" },
+        { "username": "jane_smith", "password": "password124", "question": "Charlie" },
+        { "username": "michael_jones", "password": "password125", "question": "Diana" },
+        { "username": "mary_johnson", "password": "password126", "question": "Edward" },
+        { "username": "robert_brown", "password": "password127", "question": "Fiona" },
+        { "username": "linda_white", "password": "password128", "question": "George" },
+        { "username": "david_taylor", "password": "password129", "question": "Hannah" },
+        { "username": "patricia_lee", "password": "password130", "question": "Ian" },
+        { "username": "james_wilson", "password": "password131", "question": "Julia" },
+        { "username": "elizabeth_moore", "password": "password132", "question": "Kevin" },
+        { "username": "william_anderson", "password": "password133", "question": "Laura" },
+        { "username": "susan_thomas", "password": "password134", "question": "Michael" },
+        { "username": "joseph_jackson", "password": "password135", "question": "Nina" },
+        { "username": "nancy_white", "password": "password136", "question": "Oliver" },
+        { "username": "charles_harris", "password": "password137", "question": "Paula" },
+        { "username": "barbara_martin", "password": "password138", "question": "Quentin" },
+        { "username": "thomas_young", "password": "password139", "question": "Rachel" },
+        { "username": "sarah_king", "password": "password140", "question": "Steve" },
+        { "username": "christopher_scott", "password": "password141", "question": "Tina" },
+        { "username": "karen_adams", "password": "password142", "question": "Ursula" },
+        { "username": "daniel_baker", "password": "password143", "question": "Victor" },
+        { "username": "betty_gonzalez", "password": "password144", "question": "Wendy" },
+        { "username": "george_carter", "password": "password145", "question": "Xavier" },
+        { "username": "dorothy_wilson", "password": "password146", "question": "Yvonne" },
+        { "username": "paul_brown", "password": "password147", "question": "Zach" },
+        { "username": "jennifer_davis", "password": "password148", "question": "Abby" },
+        { "username": "mark_miller", "password": "password149", "question": "Brian" },
+        { "username": "martha_williams", "password": "password150", "question": "Clara" },
+        { "username": "steven_clark", "password": "password151", "question": "David" },
+        { "username": "nancy_rodgers", "password": "password152", "question": "Ella" }
         ]
     ];
 
     for (const user of users[0]) {
         const hashedPassword = await bcrypt.hash(user.password, 10);
-        await db.none('INSERT INTO users (username, password) VALUES ($1, $2)', [user.username, hashedPassword]);
+        await db.none('INSERT INTO users (username, password, question) VALUES ($1, $2,$3)', [user.username, hashedPassword, user.question]);
     }
     console.log("users inserted with hashed passwords");
 } 
