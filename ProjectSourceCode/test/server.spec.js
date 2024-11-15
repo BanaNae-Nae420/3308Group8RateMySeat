@@ -90,15 +90,17 @@ describe('Testing /login API', () => {
   const testUser = {
     username: 'testuser',
     password: 'testpass123',
+    question: 'bob'
   };
   
   before(async () => {
     // Clear users table and create test user
     await db.query('TRUNCATE TABLE users CASCADE');
     const hashedPassword = await bcrypt.hash(testUser.password, 10);
-    await db.query('INSERT INTO users (username, password) VALUES ($1, $2)', [
+    await db.query('INSERT INTO users (username, password, question) VALUES ($1, $2, $3)', [
       testUser.username,
       hashedPassword,
+      testUser.question
     ]);
   });
   
