@@ -1,5 +1,5 @@
 // *****************************************************
-// <!-- Section 1 : Import Dependencies -->
+// Import Dependencies
 // *****************************************************
 // dependencies copied from Lab 8
 const express = require('express'); // To build an application server or API
@@ -23,7 +23,7 @@ const hbs = handlebars.create({
 });
 
 // *****************************************************
-// <!-- Section 2 : Connect to DB -->
+// Connect to DB
 // *****************************************************
 
 // database configuration
@@ -37,7 +37,6 @@ const dbConfig = {
 
 const db = pgp(dbConfig);
 
-
 // test database connection
 db.connect()
   .then(obj => {
@@ -48,10 +47,8 @@ db.connect()
     console.log('ERROR:', error.message || error);
   });
 
-
-
-  // *****************************************************
-// <!-- Section 3 : App Settings -->
+// *****************************************************
+// App Settings
 // *****************************************************
 
 // Register `hbs` as our view engine using its bound `engine()` function.
@@ -78,14 +75,76 @@ app.use(
 const user = {
   username: undefined
 };
-// *****************************************************
-// <!-- Section 4 : API Routes -->
-// *****************************************************
 
-// TODO - Include your API routes here
+// *****************************************************
+// ticket master api for later
+// *****************************************************
+/*axios({
+  url: `https://app.ticketmaster.com/discovery/v2/events.json`,
+  method: 'GET',
+  dataType: 'json',
+  headers: {
+    'Accept-Encoding': 'application/json',
+  },
+  params: {
+    apikey: process.env.API_KEY,
+    venueId: 'KovZpa3Wne', //you can choose any artist/event here
+    size: 1000 // you can choose the number of events you would like to return
+  },
+})
+.then(results => {
+  //console.log(results.data._embedded.events);
+  //res.render('pages/discover', {results: events_array});
+
+  results.data._embedded.events.forEach(event => {
+    const eventData = {
+      //event_id: event.id,              // Ticketmaster Event ID
+      name: event.name,                // Event Name
+      date: event.dates.start.dateTime,// Event Date and Time
+      //venue_name: event._embedded.venues[0].name, // Venue Name
+      //venue_id: event._embedded.venues[0].id,   // Venue ID
+      //location: event._embedded.venues[0].location.address.line1, // Venue Location
+      description: event.description || 'No description available',  // Event Description
+      //url: event.url                   // URL to the Event Page
+    };
+
+    db.none(`
+      INSERT INTO events(event_name, event_date, description)
+      VALUES($1, $2, $3)
+      ON CONFLICT(event_name) DO NOTHING;`, 
+      [eventData.name, eventData.date, eventData.description]
+    )
+    .then(() => {
+        console.log(`Inserted event: ${eventData.name}`);
+    })
+    .catch(error => {
+        console.error('Error inserting event:', error.message);
+    });
+  })
+})
+.catch(err => {
+  console.error('Error fetching events from Ticketmaster API:', err.message);
+});
+*/
+
+
+// *****************************************************
+// Handlebars Helpers
+// *****************************************************
+Handlebars.registerHelper('sectionRange', function(start, end) {
+  let range = [];
+  for (let i = start; i <= end; i++) {
+    range.push(i);
+  }
+  return range;
+});
+
+// *****************************************************
+// API Routes
+// *****************************************************
 
 app.get('/', (req, res) => {
-  res.redirect('/login'); //this will call the /anotherRoute route in the API
+  res.redirect('/sections'); //this will call the /anotherRoute route in the API
 });
 
 app.get('/register', (req,res) => {
@@ -98,6 +157,73 @@ app.get('/login', (req,res) => {
 app.get('/forgot', (req,res) => {
   res.render('pages/forgot');
 });
+
+// renders pages/sections with section numbers 
+app.get('/sections', async (req,res) => {
+  const sections = [
+    { level: '100 Level', start: 105, end: 160 },
+    { level: '200 Level', start: 201, end: 247 },
+    { level: '300 Level', start: 301, end: 347 },
+    { level: 'Suites', start: 1, end: 45 }
+  ];
+  res.render('pages/sections', {sections});
+});
+
+app.get('/getReview/:sectionId', async (req,res) => {
+  const sectionId = req.params.sectionId;
+
+  const query = `SELECT
+    r.review_id,
+    r.review,
+    r.rating,
+    s.seat_id,
+    s.section,
+    s.row,
+    s.seat_number,
+    u.username,
+    e.event_id,
+    e.event_name,
+    e.event_date,
+    e.description,
+    i.image_id,
+    i.image_url
+  FROM
+    reviews r
+  JOIN
+    reviews_to_seats rs ON r.review_id = rs.review_id
+  JOIN
+    seats s ON s.seat_id = rs.seat_id
+  JOIN
+    reviews_to_users ru ON r.review_id = ru.review_id
+  JOIN
+    users u ON u.username = ru.username
+  JOIN
+    reviews_to_events re ON r.review_id = re.review_id
+  JOIN
+    events e ON e.event_id = re.event_id
+  LEFT JOIN
+    reviews_to_images ri ON r.review_id = ri.review_id
+  LEFT JOIN
+    images i ON i.image_id = ri.image_id
+  WHERE
+    s.section = $1;`
+  try {
+    const review_data = await db.any(query, [sectionId]);
+
+    console.log(review_data);
+    res.render('pages/getReviews', {
+      results: review_data,
+      message: `Showing review from section ${sectionId}`
+    });
+  } catch(error) {
+    console.error(error);
+    res.status(500).json({
+      status: 'error',
+      message: 'an error occurred while fetching data',
+      error: error.message,
+    });
+  }
+}); 
 
 //lab 11 api test
 app.get('/welcome', (req, res) => {
@@ -130,7 +256,6 @@ app.post('/register', async (req,res) => {
   }
 });
 
-
 app.post('/login', async (req,res) => {
   const username = req.body.username;
   const password = req.body.password;
@@ -140,12 +265,12 @@ app.post('/login', async (req,res) => {
       const user = await db.one(query, [username])
       const match = await bcrypt.compare(req.body.password, user.password);
       if (match) {
-          console.log("success");
+          console.log("login success");
           req.session.user = {
             username: user.username
           };
           req.session.save();
-          res.redirect("/addReview");
+          res.redirect("/sections");
       }
       else {
           console.log("incorrect password")
@@ -226,8 +351,8 @@ app.post('/addReview', auth, async (req, res) => {
   values ($1, $2)  returning review_id; `;
 
   const Query2 = `
-  insert into images (image_url, image_caption)
-  values ($1, $2) returning image_id; `;
+  insert into images (image_url)
+  values ($1) returning image_id; `;
 
   const Query3 = `
   insert into reviews_to_images (image_id, review_id)
@@ -271,8 +396,8 @@ app.post('/addReview', auth, async (req, res) => {
       //console.log(event_id);
 
       // add image and reviews_to_images
-      if (req.body.image_url && req.body.image_caption) {
-        let image_id = await task.one(Query2, [req.body.image_url, req.body.image_caption]);
+      if (req.body.image_url) {
+        let image_id = await task.one(Query2, [req.body.image_url]);
         await task.none(Query3, [image_id.image_id, review_id.review_id]);
         // Query 1 and 2 return an object containing review_id and image_id
         // for instance Query2 returns an object like {image_id: 5}
@@ -321,7 +446,7 @@ app.get('/logout', (req,res) => {
 // starting server
 const server = app.listen(3000);
 
-//exporting server and db for tesing
+//exporting db,server,app for testing
 module.exports = {db, server, app};
 
 console.log('Server is listening on port 3000');

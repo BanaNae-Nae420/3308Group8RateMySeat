@@ -1,0 +1,17 @@
+{{#if results.length}}
+    {{#each results}}
+      <div class="review">
+        <h2>Review ID: {{review_id}}</h2>
+        <p><strong>Review:</strong> {{review}}</p>
+        <p><strong>Rating:</strong> {{rating}}/5</p>
+        <p><strong>Seat:</strong> Row {{row}}, Seat {{seat_number}}</p>
+        <p><strong>Event:</strong> {{event_name}} ({{event_date}})</p>
+        {{#if image_url}}
+          <div><img src="{{image_url}}" alt="Review Image"></div>
+        {{/if}}
+        <p><strong>Username:</strong> {{username}}</p>
+      </div>
+    {{/each}}
+  {{else}}
+    <p>No reviews available for this section.</p>
+{{/if}}
