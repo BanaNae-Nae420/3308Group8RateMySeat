@@ -52,7 +52,7 @@ describe('Testing /register API', () => {
       chai
         .request(server)
         .post('/register')
-        .send({username: 'cama', password: 'cama'})
+        .send({username: 'cama', password: 'cama',question:'John'})
         .end((err, res) => {
           expect(res).to.have.status(200);
           //expect(res.body.message).to.equals('success');
@@ -63,10 +63,10 @@ describe('Testing /register API', () => {
       chai
         .request(server)
         .post('/register')
-        .send({username: 'aabbccddennnnnnwjfnwjfwjfbwljfbj2qbrqjwbwqobfqofbwfbwqjbfwefwwfw', password: 'cama'})
+        .send({username: 'aabbccddennnnnnwjfnwjfwjfbwljfbj2qbrqjwbwqobfqofbwfbwqjbfwefwwfw', password: 'cama', question:'John'})
         .end((err, res) => {
           expect(res).to.have.status(400);
-          expect(res.body.message).to.equals('Username Exceeds Character Limit');
+          expect(res.body.message).to.equals('Username or teacher name Exceeds Character Limit');
           done();
         });
     });
@@ -95,15 +95,17 @@ describe('Testing /addReview API', () => {
   const testUser = {
     username: 'testuser',
     password: 'testpass123',
+    question: 'bob'
   };
   
   before(async () => {
     // Clear users table and create test user
     await db.query('TRUNCATE TABLE users CASCADE');
     const hashedPassword = await bcrypt.hash(testUser.password, 10);
-    await db.query('INSERT INTO users (username, password) VALUES ($1, $2)', [
+    await db.query('INSERT INTO users (username, password, question) VALUES ($1, $2, $3)', [
       testUser.username,
       hashedPassword,
+      testUser.question
     ]);
   });
   

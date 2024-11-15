@@ -1,6 +1,7 @@
 CREATE TABLE users (
     username VARCHAR(60) PRIMARY KEY,
-    password VARCHAR(60) NOT NULL
+    password VARCHAR(60) NOT NULL,
+    question VARCHAR(60) NOT NULL
 );
 
 -- reviews

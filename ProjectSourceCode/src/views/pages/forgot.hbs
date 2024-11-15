@@ -1,0 +1,20 @@
+{{> message}}
+<h2>forgot password</h2>
+<form method="post" action="/forgot">
+    <label for="username"> Username: </label>
+    <input type="text" name="username" required /> <br>
+
+    <label for="question"> what is your favorite teachers name? </label>
+    <input type="text" name="question" required /> <br>
+
+    <label for="newPassword">what will your new password be? </label>
+    <input type="text" name="newPassword" required /> <br>
+
+    <input type="submit" value="Forgot" /> <br>
+    <p>Don't have an account? 
+        <a href="/register">Register Here</a>
+    </p>
+</form>
+{{#if message}}
+    <p>{{messape}}</p>
+{{/if}}
