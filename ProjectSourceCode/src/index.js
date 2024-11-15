@@ -308,7 +308,7 @@ app.post('/forgot',async (req,res) => {
         const hashedPassword= await bcrypt.hash(userPassword,10);
         const queryTWO = 'UPDATE users SET password= $1 WHERE username= $2 RETURNING *;';
         await db.one(queryTWO,[hashedPassword,username])
-      res.render("pages/forgot",{
+      res.render("pages/login",{
        message: `new password is: ${userPassword}`
       });
     } else {
