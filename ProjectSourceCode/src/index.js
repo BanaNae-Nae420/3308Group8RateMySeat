@@ -291,6 +291,7 @@ app.post('/login', async (req,res) => {
     }
 });
 
+ 
 
 app.post('/forgot',async (req,res) => {
   const username = req.body.username;
@@ -420,6 +421,38 @@ app.post('/addReview', auth, async (req, res) => {
     });
   }
 });
+
+app.get('/viewReviews', async (req, res) => {
+  try {
+      const events = await db.any(`SELECT DISTINCT event_name FROM events`);
+      res.render('pages/viewReviews', { events });
+  } catch (err) {
+      console.error('Error getting event names', err);
+      res.status(500).send('Internal Server Error');
+  }
+ });
+
+ app.post('/viewReviews', async (req, res) => {
+  try {
+      const eventName = req.body.events;
+
+      const reviewInfo = await db.any(`SELECT r.review_id, r.review, r.rating, s.seat_number, s.section, s.row, e.event_name, e.event_date
+      FROM reviews r
+      JOIN reviews_to_events re ON r.review_id = re.review_id
+      JOIN events e ON re.event_id = e.event_id
+      JOIN reviews_to_seats rs ON r.review_id = rs.review_id
+      JOIN seats s ON rs.seat_id = s.seat_id
+      WHERE e.event_name = $1`, [eventName]);
+      
+      res.render('pages/viewReviews', {
+        eventName,
+        reviewInfo
+      });
+  } catch (err) {
+      console.error('Error getting event names', err);
+      res.status(500).send('Internal Server Error');
+}
+ });
 
 app.get('/logout', (req,res) => {
   req.session.destroy();
