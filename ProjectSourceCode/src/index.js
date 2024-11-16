@@ -330,7 +330,6 @@ app.post('/forgot',async (req,res) => {
   }
 });
 
-
 // Authentication Middleware.
 const auth = (req, res, next) => {
   if (!req.session.user) {
@@ -454,6 +453,50 @@ app.get('/viewReviews', async (req, res) => {
 }
  });
 
+
+app.get('/ownReviews',auth,async (req,res) => {
+  if(!req.session||!req.session.user||!req.session.user.username){
+    console.log('no user session found');
+    return res.redirect('/login');
+  }
+
+    const username= req.session.user.username;
+    console.log('Session: ',req.session);
+    console.log('username: ',username);
+    try{
+      console.log('STEP1')
+      const reviews = await db.any(
+      `SELECT r.review_id, r.review, r.rating, s.seat_number, s.section, s.row, e.event_name, e.event_date, u.username
+      FROM reviews r
+      JOIN reviews_to_events re ON r.review_id = re.review_id
+      JOIN events e ON re.event_id = e.event_id
+      JOIN reviews_to_seats rs ON r.review_id = rs.review_id
+      JOIN seats s ON rs.seat_id = s.seat_id
+      JOIN reviews_to_users ru ON r.review_id = ru.review_id
+      JOIN users u ON u.username =ru.username
+      WHERE u.username = $1`, [username]);
+      console.log('reviews: ', reviews)
+    if(reviews.length==0){
+      console.log('STEP3')
+      res.render('pages/viewReviews', {
+        message: "You don't have any reviews yet!"
+      });
+      console.log('STEP4')
+    }
+    else{
+      console.log('STEP5')
+      res.render('pages/OwnReviews', { reviews: reviews });
+    }
+  }
+  catch(err){
+    console.log('STEP6')
+    console.error('error finding ownReviews: ',err.message)
+  }
+});
+
+
+
+
 app.get('/logout', (req,res) => {
   req.session.destroy();
   res.render('pages/logout', {message: "Logged Out Successfully"});
@@ -472,9 +515,6 @@ app.get('/logout', (req,res) => {
     res.status(500).send('Internal Server Error');
   }
 }); */
-
-
-
 
 // starting server
 const server = app.listen(3000);

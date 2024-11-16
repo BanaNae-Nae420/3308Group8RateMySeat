@@ -1,0 +1,29 @@
+
+<h2>Your reviews:</h2>
+{{#if reviews.length}}
+    <ul>
+        {{#each reviews}}
+         
+            <li class="review">
+            <p>Rating: {{rating}}</p>
+            <p>Review:{{review}}</p>
+            <p>Seat:{{seat_number}}</p>
+            <p>Event:{{event_name}}</p>
+
+            {{#if review_id}}
+                 {{!-- <form action="/deleteReview/{{review_id}}" method="post">
+                    <button type="submit">Delete Review</button>
+                </form> --}}
+            {{/if}}
+        </li>
+    {{/each}}
+    </ul>
+    
+{{else}}
+    <p>No reviews Found<p>
+{{/if}}
+    
+
+
+
+   
