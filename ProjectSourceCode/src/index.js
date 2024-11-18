@@ -154,6 +154,9 @@ app.get('/register', (req,res) => {
 app.get('/login', (req,res) => {
   res.render('pages/login');
 });
+app.get('/forgot', (req,res) => {
+  res.render('pages/forgot');
+});
 
 // renders pages/sections with section numbers 
 app.get('/sections', async (req,res) => {
@@ -230,12 +233,12 @@ app.get('/welcome', (req, res) => {
 app.post('/register', async (req,res) => {
   const username = req.body.username;
   const password = req.body.password;
-  const query = 'INSERT INTO users (username, password) VALUES ($1, $2);';
-
+  const question = req.body.question;
+  const query = 'INSERT INTO users (username, password, question) VALUES ($1, $2, $3);';
   try {
       const hash = await bcrypt.hash(password, 10);
       
-      await db.none(query, [username, hash])
+      await db.none(query, [username, hash, question])
       //console.log("success");
       res.redirect('/login');
   } catch (err) {
@@ -244,7 +247,7 @@ app.post('/register', async (req,res) => {
       if(err.message === "value too long for type character varying(60)") {
         return res.status(400).json({
           status: 400,
-          message: "Username Exceeds Character Limit"
+          message: "Username or teacher name Exceeds Character Limit"
         });
       }
       else {
@@ -349,6 +352,44 @@ app.get('/viewReviews', async (req, res) => {
   }
  });
  
+
+app.post('/forgot',async (req,res) => {
+  const username = req.body.username;
+  const userAnswer = req.body.question.trim();
+  const userPassword = req.body.newPassword.trim();
+  const query = 'SELECT * FROM users WHERE username = $1 LIMIT 1;';
+
+  try {
+    const user = await db.one(query, [username])
+    console.log(user)
+    if(user.question == userAnswer){
+      console.log("success");
+      //update password:
+        const hashedPassword= await bcrypt.hash(userPassword,10);
+        const queryTWO = 'UPDATE users SET password= $1 WHERE username= $2 RETURNING *;';
+        await db.one(queryTWO,[hashedPassword,username])
+      res.render("pages/login",{
+       message: `new password is: ${userPassword}`
+      });
+    } else {
+        console.log("incorrect answer to personal question")
+        res.render('pages/forgot', {
+            message : `Wrong teacher!`
+        }); 
+    }
+} catch (err) {
+    console.log(err.message)
+    if(err.message === "No data returned from the query.") {
+      res.render('pages/register', {
+        message: "Username Not Found. Please Sign Up."
+      });
+    }
+    else {
+      res.redirect('/register');
+    }
+  }
+});
+
 
 // Authentication Middleware.
 const auth = (req, res, next) => {
