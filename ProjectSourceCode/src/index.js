@@ -144,7 +144,7 @@ Handlebars.registerHelper('sectionRange', function(start, end) {
 // *****************************************************
 
 app.get('/', (req, res) => {
-  res.redirect('/sections'); //this will call the /anotherRoute route in the API
+  res.redirect('/viewReviews'); //this will call the /anotherRoute route in the API
 });
 
 app.get('/register', (req,res) => {
@@ -159,7 +159,7 @@ app.get('/forgot', (req,res) => {
 });
 
 // renders pages/sections with section numbers 
-app.get('/sections', async (req,res) => {
+/*app.get('/sections', async (req,res) => {
   const sections = [
     { level: '100 Level', start: 105, end: 160 },
     { level: '200 Level', start: 201, end: 247 },
@@ -167,9 +167,9 @@ app.get('/sections', async (req,res) => {
     { level: 'Suites', start: 1, end: 45 }
   ];
   res.render('pages/sections', {sections});
-});
+}); */
 
-app.get('/getReview/:sectionId', async (req,res) => {
+/*app.get('/getReview/:sectionId', async (req,res) => {
   const sectionId = req.params.sectionId;
 
   const query = `SELECT
@@ -223,7 +223,7 @@ app.get('/getReview/:sectionId', async (req,res) => {
       error: error.message,
     });
   }
-}); 
+}); */
 
 //lab 11 api test
 app.get('/welcome', (req, res) => {
@@ -270,7 +270,7 @@ app.post('/login', async (req,res) => {
             username: user.username
           };
           req.session.save();
-          res.redirect("/sections");
+          res.redirect("/viewReviews");
       }
       else {
           console.log("incorrect password")
@@ -293,65 +293,71 @@ app.post('/login', async (req,res) => {
 
 app.get('/viewReviews', async (req, res) => {
   try {
-      const events = await db.any(`SELECT DISTINCT event_name FROM events`);
-      const sections = await db.any(`SELECT DISTINCT section FROM seats`)
-      const allReviewInfo = await db.any(`SELECT r.review_id, r.review, r.rating, s.seat_number, s.section, s.row, e.event_name, e.event_date, i.image_url
-  FROM reviews r
-  LEFT JOIN reviews_to_seats rs ON r.review_id = rs.review_id
-  LEFT JOIN seats s ON rs.seat_id = s.seat_id
-  LEFT JOIN reviews_to_events re ON r.review_id = re.review_id
-  LEFT JOIN events e ON re.event_id = e.event_id
-  LEFT JOIN reviews_to_images ri ON r.review_id = ri.review_id
-  LEFT JOIN images i ON ri.image_id = i.image_id;`);
-      res.render('pages/viewReviews', { 
-        sections,
-        events,
-        allReviewInfo,
-       });
-  } catch (err) {
-      console.error('Error getting event names', err);
-      res.status(500).send('Internal Server Error');
-  }
- });
-
- app.get('/changeReviews', async (req, res) => {
-  try {
-      const events = req.query.events;
-      const sections = req.query.sections;
-      let allReviewInfo = [];
-      if(events)
-      {
-        allReviewInfo = await db.any(`SELECT r.review_id, r.review, r.rating, s.seat_number, s.section, s.row, e.event_name, e.event_date, i.image_url
+    const events = await db.any(`SELECT DISTINCT event_name FROM events`);
+    const sections = await db.any(`SELECT DISTINCT section FROM seats`)
+    const allReviewInfo = await db.any(
+      `SELECT r.review_id, r.review, r.rating, s.seat_number, 
+      s.section, s.row, e.event_name, e.event_date, i.image_url
       FROM reviews r
       LEFT JOIN reviews_to_seats rs ON r.review_id = rs.review_id
       LEFT JOIN seats s ON rs.seat_id = s.seat_id
       LEFT JOIN reviews_to_events re ON r.review_id = re.review_id
       LEFT JOIN events e ON re.event_id = e.event_id
       LEFT JOIN reviews_to_images ri ON r.review_id = ri.review_id
-      LEFT JOIN images i ON ri.image_id = i.image_id WHERE e.event_name = $1`, [events]);
-      }
-      else if(sections)
-      {
-        allReviewInfo = await db.any(`SELECT r.review_id, r.review, r.rating, s.seat_number, s.section, s.row, e.event_name, e.event_date, i.image_url
+      LEFT JOIN images i ON ri.image_id = i.image_id; `
+    );
+    res.render('pages/viewReviews', { 
+      sections,
+      events,
+      allReviewInfo,
+    });
+  } catch (err) {
+      console.error('Error getting event names', err);
+      res.status(500).send('Internal Server Error');
+    }
+});
+
+app.get('/changeReviews', async (req, res) => {
+  try {
+    const events = req.query.events;
+    const sections = req.query.sections;
+    let allReviewInfo = [];
+    if(events) {
+      allReviewInfo = await db.any(
+        `SELECT r.review_id, r.review, r.rating, 
+        s.seat_number, s.section, s.row, e.event_name, 
+        e.event_date, i.image_url
         FROM reviews r
         LEFT JOIN reviews_to_seats rs ON r.review_id = rs.review_id
         LEFT JOIN seats s ON rs.seat_id = s.seat_id
         LEFT JOIN reviews_to_events re ON r.review_id = re.review_id
         LEFT JOIN events e ON re.event_id = e.event_id
         LEFT JOIN reviews_to_images ri ON r.review_id = ri.review_id
-        LEFT JOIN images i ON ri.image_id = i.image_id WHERE s.section = $1`, [sections]);
-      }
-      res.render('pages/viewReviews', { 
-        sections,
-        events,
-        allReviewInfo,
-       });
+        LEFT JOIN images i ON ri.image_id = i.image_id 
+        WHERE e.event_name = $1; `, [events]);
+    }
+    else if(sections) {
+      allReviewInfo = await db.any(
+      `SELECT r.review_id, r.review, r.rating, 
+      s.seat_number, s.section, s.row, e.event_name, e.event_date, i.image_url
+      FROM reviews r
+      LEFT JOIN reviews_to_seats rs ON r.review_id = rs.review_id
+      LEFT JOIN seats s ON rs.seat_id = s.seat_id
+      LEFT JOIN reviews_to_events re ON r.review_id = re.review_id
+      LEFT JOIN events e ON re.event_id = e.event_id
+      LEFT JOIN reviews_to_images ri ON r.review_id = ri.review_id
+      LEFT JOIN images i ON ri.image_id = i.image_id WHERE s.section = $1; `, [sections]);
+    }
+    res.render('pages/viewReviews', { 
+      sections,
+      events,
+      allReviewInfo,
+    });
   } catch (err) {
       console.error('Error getting event names', err);
       res.status(500).send('Internal Server Error');
-  }
- });
- 
+    }
+});
 
 app.post('/forgot',async (req,res) => {
   const username = req.body.username;
@@ -362,32 +368,32 @@ app.post('/forgot',async (req,res) => {
   try {
     const user = await db.one(query, [username])
     console.log(user)
-    if(user.question == userAnswer){
+    if(user.question == userAnswer) {
       console.log("success");
       //update password:
-        const hashedPassword= await bcrypt.hash(userPassword,10);
-        const queryTWO = 'UPDATE users SET password= $1 WHERE username= $2 RETURNING *;';
-        await db.one(queryTWO,[hashedPassword,username])
+      const hashedPassword= await bcrypt.hash(userPassword,10);
+      const queryTWO = 'UPDATE users SET password= $1 WHERE username= $2 RETURNING *; ';
+      await db.one(queryTWO,[hashedPassword,username])
       res.render("pages/login",{
-       message: `new password is: ${userPassword}`
+        message: `new password is: ${userPassword}`
       });
     } else {
         console.log("incorrect answer to personal question")
         res.render('pages/forgot', {
-            message : `Wrong teacher!`
+          message : `Wrong teacher!`
         }); 
+      }
+  } catch (err) {
+      console.log(err.message)
+      if(err.message === "No data returned from the query.") {
+        res.render('pages/register', {
+          message: "Username Not Found. Please Sign Up."
+        });
+      }
+      else {
+        res.redirect('/register');
+      }
     }
-} catch (err) {
-    console.log(err.message)
-    if(err.message === "No data returned from the query.") {
-      res.render('pages/register', {
-        message: "Username Not Found. Please Sign Up."
-      });
-    }
-    else {
-      res.redirect('/register');
-    }
-  }
 });
 
 // Authentication Middleware.
@@ -472,53 +478,59 @@ app.post('/addReview', auth, async (req, res) => {
     });
 
   } catch (err) {
-    console.log(err);
-    res.status(500).json({
-      status: 'error',
-      message: 'an error occurred while adding data',
-      error: err.message,
-    });
-  }
+      console.log(err);
+      res.status(500).json({
+        status: 'error',
+        message: 'an error occurred while adding data',
+        error: err.message,
+      });
+    }
 });
 
 
-app.get('/ownReviews',auth,async (req,res) => {
-  if(!req.session||!req.session.user||!req.session.user.username){
+app.get('/ownReviews', auth, async (req,res) => {
+  // dont need this because it is under authentication middleware
+  /*if(!req.session||!req.session.user||!req.session.user.username){
     console.log('no user session found');
     return res.redirect('/login');
-  }
+  } */
 
-    const username= req.session.user.username;
-    console.log('Session: ',req.session);
-    console.log('username: ',username);
-    try{
-      console.log('STEP1')
-      const reviews = await db.any(
-      `SELECT r.review_id, r.review, r.rating, s.seat_number, s.section, s.row, e.event_name, e.event_date, u.username
-      FROM reviews r
-      JOIN reviews_to_events re ON r.review_id = re.review_id
-      JOIN events e ON re.event_id = e.event_id
-      JOIN reviews_to_seats rs ON r.review_id = rs.review_id
-      JOIN seats s ON rs.seat_id = s.seat_id
-      JOIN reviews_to_users ru ON r.review_id = ru.review_id
-      JOIN users u ON u.username =ru.username
-      WHERE u.username = $1`, [username]);
-      console.log('reviews: ', reviews)
-    if(reviews.length==0){
-      console.log('STEP3')
+  const username= req.session.user.username;
+  //console.log('Session: ',req.session);
+  //console.log('username: ',username);
+  try {
+    //console.log('STEP1')
+    const reviews = await db.any(
+    `SELECT r.review_id, r.review, r.rating, s.seat_number, 
+    s.section, s.row, e.event_name, e.event_date, u.username
+    FROM reviews r
+    JOIN reviews_to_events re ON r.review_id = re.review_id
+    JOIN events e ON re.event_id = e.event_id
+    JOIN reviews_to_seats rs ON r.review_id = rs.review_id
+    JOIN seats s ON rs.seat_id = s.seat_id
+    JOIN reviews_to_users ru ON r.review_id = ru.review_id
+    JOIN users u ON u.username =ru.username
+    WHERE u.username = $1`, [username]);
+    //console.log('reviews: ', reviews)
+    if(reviews.length==0) {
+      //console.log('STEP3')
       res.render('pages/viewReviews', {
         message: "You don't have any reviews yet!"
       });
-      console.log('STEP4')
+      //console.log('STEP4')
     }
-    else{
-      console.log('STEP5')
-      res.render('pages/OwnReviews', { reviews: reviews });
+    else {
+      //console.log('STEP5')
+      res.render('pages/ownReviews', { reviews: reviews });
     }
   }
-  catch(err){
-    console.log('STEP6')
-    console.error('error finding ownReviews: ',err.message)
+  catch(err) {
+    //console.log('STEP6')
+    console.error('error finding ownReviews: ', err.message)
+    res.status(500).json({
+      status: 'error',
+      error: err.message,
+    });
   }
 });
 
