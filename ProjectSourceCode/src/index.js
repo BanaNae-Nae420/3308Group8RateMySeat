@@ -291,6 +291,66 @@ app.post('/login', async (req,res) => {
     }
 });
 
+app.get('/viewReviews', async (req, res) => {
+  try {
+      const events = await db.any(`SELECT DISTINCT event_name FROM events`);
+      const sections = await db.any(`SELECT DISTINCT section FROM seats`)
+      const allReviewInfo = await db.any(`SELECT r.review_id, r.review, r.rating, s.seat_number, s.section, s.row, e.event_name, e.event_date, i.image_url
+  FROM reviews r
+  LEFT JOIN reviews_to_seats rs ON r.review_id = rs.review_id
+  LEFT JOIN seats s ON rs.seat_id = s.seat_id
+  LEFT JOIN reviews_to_events re ON r.review_id = re.review_id
+  LEFT JOIN events e ON re.event_id = e.event_id
+  LEFT JOIN reviews_to_images ri ON r.review_id = ri.review_id
+  LEFT JOIN images i ON ri.image_id = i.image_id;`);
+      res.render('pages/viewReviews', { 
+        sections,
+        events,
+        allReviewInfo,
+       });
+  } catch (err) {
+      console.error('Error getting event names', err);
+      res.status(500).send('Internal Server Error');
+  }
+ });
+
+ app.get('/changeReviews', async (req, res) => {
+  try {
+      const events = req.query.events;
+      const sections = req.query.sections;
+      let allReviewInfo = [];
+      if(events)
+      {
+        allReviewInfo = await db.any(`SELECT r.review_id, r.review, r.rating, s.seat_number, s.section, s.row, e.event_name, e.event_date, i.image_url
+      FROM reviews r
+      LEFT JOIN reviews_to_seats rs ON r.review_id = rs.review_id
+      LEFT JOIN seats s ON rs.seat_id = s.seat_id
+      LEFT JOIN reviews_to_events re ON r.review_id = re.review_id
+      LEFT JOIN events e ON re.event_id = e.event_id
+      LEFT JOIN reviews_to_images ri ON r.review_id = ri.review_id
+      LEFT JOIN images i ON ri.image_id = i.image_id WHERE e.event_name = $1`, [events]);
+      }
+      else if(sections)
+      {
+        allReviewInfo = await db.any(`SELECT r.review_id, r.review, r.rating, s.seat_number, s.section, s.row, e.event_name, e.event_date, i.image_url
+        FROM reviews r
+        LEFT JOIN reviews_to_seats rs ON r.review_id = rs.review_id
+        LEFT JOIN seats s ON rs.seat_id = s.seat_id
+        LEFT JOIN reviews_to_events re ON r.review_id = re.review_id
+        LEFT JOIN events e ON re.event_id = e.event_id
+        LEFT JOIN reviews_to_images ri ON r.review_id = ri.review_id
+        LEFT JOIN images i ON ri.image_id = i.image_id WHERE s.section = $1`, [sections]);
+      }
+      res.render('pages/viewReviews', { 
+        sections,
+        events,
+        allReviewInfo,
+       });
+  } catch (err) {
+      console.error('Error getting event names', err);
+      res.status(500).send('Internal Server Error');
+  }
+ });
  
 
 app.post('/forgot',async (req,res) => {
@@ -421,38 +481,6 @@ app.post('/addReview', auth, async (req, res) => {
   }
 });
 
-app.get('/viewReviews', async (req, res) => {
-  try {
-      const events = await db.any(`SELECT DISTINCT event_name FROM events`);
-      res.render('pages/viewReviews', { events });
-  } catch (err) {
-      console.error('Error getting event names', err);
-      res.status(500).send('Internal Server Error');
-  }
- });
-
- app.post('/viewReviews', async (req, res) => {
-  try {
-      const eventName = req.body.events;
-
-      const reviewInfo = await db.any(`SELECT r.review_id, r.review, r.rating, s.seat_number, s.section, s.row, e.event_name, e.event_date
-      FROM reviews r
-      JOIN reviews_to_events re ON r.review_id = re.review_id
-      JOIN events e ON re.event_id = e.event_id
-      JOIN reviews_to_seats rs ON r.review_id = rs.review_id
-      JOIN seats s ON rs.seat_id = s.seat_id
-      WHERE e.event_name = $1`, [eventName]);
-      
-      res.render('pages/viewReviews', {
-        eventName,
-        reviewInfo
-      });
-  } catch (err) {
-      console.error('Error getting event names', err);
-      res.status(500).send('Internal Server Error');
-}
- });
-
 
 app.get('/ownReviews',auth,async (req,res) => {
   if(!req.session||!req.session.user||!req.session.user.username){
@@ -493,8 +521,6 @@ app.get('/ownReviews',auth,async (req,res) => {
     console.error('error finding ownReviews: ',err.message)
   }
 });
-
-
 
 
 app.get('/logout', (req,res) => {
