@@ -145,27 +145,7 @@ async function insertReviewUsers() {
         { username: 'thomas_young', review_id: 77 },
         { username: 'sarah_king', review_id: 78 },
         { username: 'christopher_scott', review_id: 79 },
-        { username: 'karen_adams', review_id: 80 },
-        { username: 'daniel_baker', review_id: 81 },
-        { username: 'betty_gonzalez', review_id: 82 },
-        { username: 'george_carter', review_id: 83 },
-        { username: 'dorothy_wilson', review_id: 84 },
-        { username: 'paul_brown', review_id: 85 },
-        { username: 'jennifer_davis', review_id: 86 },
-        { username: 'mark_miller', review_id: 87 },
-        { username: 'martha_williams', review_id: 88 },
-        { username: 'steven_clark', review_id: 89 },
-        { username: 'nancy_rodgers', review_id: 90 },
-        { username: 'john_doe', review_id: 91 },
-        { username: 'jane_smith', review_id: 92 },
-        { username: 'michael_jones', review_id: 93 },
-        { username: 'mary_johnson', review_id: 94 },
-        { username: 'robert_brown', review_id: 95 },
-        { username: 'linda_white', review_id: 96 },
-        { username: 'david_taylor', review_id: 97 },
-        { username: 'patricia_lee', review_id: 98 },
-        { username: 'james_wilson', review_id: 99 },
-        { username: 'elizabeth_moore', review_id: 100 }
+        { username: 'karen_adams', review_id: 80 }
     ];
 
     for (const reviewUser of reviewUsers) {
