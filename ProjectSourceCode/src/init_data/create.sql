@@ -1,6 +1,9 @@
-CREATE TABLE users (
+-- users
+DROP TABLE IF EXISTS users CASCADE;
+CREATE TABLE IF NOT EXISTS users (
     username VARCHAR(60) PRIMARY KEY,
-    password VARCHAR(60) NOT NULL
+    password VARCHAR(60) NOT NULL,
+    question VARCHAR(60) NOT NULL
 );
 
 -- reviews
@@ -8,15 +11,14 @@ DROP TABLE IF EXISTS reviews CASCADE;
 CREATE TABLE IF NOT EXISTS reviews (
   review_id SERIAL PRIMARY KEY NOT NULL,
   review VARCHAR(200),
-  rating DECIMAL NOT NULL
+  rating INTEGER CHECK (rating BETWEEN 1 AND 5) NOT NULL
 );
 
 -- image for reviews
 DROP TABLE IF EXISTS images CASCADE;
 CREATE TABLE IF NOT EXISTS images (
   image_id SERIAL PRIMARY KEY NOT NULL,
-  image_url VARCHAR(300) NOT NULL,
-  image_caption VARCHAR(200)
+  image_url VARCHAR(300) NOT NULL
 );
 
 -- stadium seat
@@ -34,7 +36,8 @@ DROP TABLE IF EXISTS events CASCADE;
 CREATE TABLE IF NOT EXISTS events (
     event_id SERIAL PRIMARY KEY NOT NULL, 
     event_name VARCHAR(60),
-    event_date DATE
+    event_date DATE,
+    description TEXT
     -- FOREIGN KEY (stadium_id) REFERENCES stadiums(stadium_id)
 );
 

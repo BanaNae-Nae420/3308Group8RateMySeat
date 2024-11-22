@@ -1,0 +1,29 @@
+{{> message}}
+<link rel="stylesheet" href="/ProjectSourceCode/src/views/css/styles.css">
+<h2>View reviews Homepage</h2>
+<form id="viewEvents" method="post" action="/viewReviews" onsubmit="hideForm(event)">
+    <label for="events"> Which Event to View </label>
+    <select id="events" name="events">
+        <option value="" selected disabled>Select an event</option>
+        {{#each events}}
+            <option value="{{this.event_name}}">{{this.event_name}}</option>
+        {{/each}}
+    </select><br>
+    <input type="submit" value="Submit" />
+    </p>
+</form>
+
+{{#if reviewInfo.length}}
+        <h2>Review Cards for: {{eventName}}</h2>
+        <div class="card-container">
+            {{#each reviewInfo}}
+                <div class ="card">
+                    <p>Review: {{review}}</p>
+                    <p>Rating: {{rating}}</p>
+                    <p>Section: {{section}}, Row: {{row}}, Seat: {{seat_number}}</p>
+                </div>
+            {{/each}}
+        </div>
+{{else}}
+<p>No reviews available</p>
+{{/if}}
