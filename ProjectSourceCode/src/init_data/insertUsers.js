@@ -6,6 +6,8 @@ This file also inserts records into reviews_to_users. This has to be done here s
 insert.sql runs before this script does, so insert.sql would be unable to find the username.
 
 Doing this also allows us to login to user's with already added reviews and test
+
+NOTE: this only runs when using docker and not render. still allows us to login easily with test1 on local
 */
 const pgp = require('pg-promise')();
 const bcrypt = require('bcryptjs');

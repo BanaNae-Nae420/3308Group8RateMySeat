@@ -4,3 +4,7 @@ TA explained github projects tab better for us
 **Need to have some sort of demo ready for next week**
   - registration/login page
   - similar to lab 8
+
+Meeting 11/13 and 11/20 @ 2:00
+showed TA demo for website
+discussed plan for next week and over break
