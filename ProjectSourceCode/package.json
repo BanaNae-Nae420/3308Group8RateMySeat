@@ -20,10 +20,10 @@
   },
     "scripts": {
         "prestart": "npm install",
-        "start": "nodemon index.js",
+        "start": "nodemon src/index.js",
         "test": "mocha",
         "insertUsers": "node src/init_data/insertUsers.js",
-        "testandrun": "npm run prestart && npm run test && npm run insertUsers && npm start"
+        "testandrun": "npm run prestart && npm run test && npm start"
     }
 }
 

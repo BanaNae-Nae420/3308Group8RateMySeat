@@ -1,7 +1,7 @@
 -- users
 DROP TABLE IF EXISTS users CASCADE;
 CREATE TABLE IF NOT EXISTS users (
-    username VARCHAR(60) PRIMARY KEY,
+    username VARCHAR(60) PRIMARY KEY NOT NULL,
     password VARCHAR(60) NOT NULL,
     question VARCHAR(60) NOT NULL
 );
@@ -18,7 +18,7 @@ CREATE TABLE IF NOT EXISTS reviews (
 DROP TABLE IF EXISTS images CASCADE;
 CREATE TABLE IF NOT EXISTS images (
   image_id SERIAL PRIMARY KEY NOT NULL,
-  image_url VARCHAR(300) NOT NULL
+  image_url VARCHAR(300)
 );
 
 -- stadium seat
@@ -36,8 +36,7 @@ DROP TABLE IF EXISTS events CASCADE;
 CREATE TABLE IF NOT EXISTS events (
     event_id SERIAL PRIMARY KEY NOT NULL, 
     event_name VARCHAR(60),
-    event_date DATE,
-    description TEXT
+    event_date DATE
     -- FOREIGN KEY (stadium_id) REFERENCES stadiums(stadium_id)
 );
 
@@ -76,45 +75,3 @@ CREATE TABLE reviews_to_events (
     FOREIGN KEY (review_id) REFERENCES reviews (review_id) ON DELETE CASCADE,
     FOREIGN KEY (event_id) REFERENCES events (event_id) ON DELETE CASCADE
 );
-
-
-
-
-/*
-CREATE TABLE stadiums ( -- possibly not need
-    stadium_id SERIAL PRIMARY KEY, 
-    stadium_name VARCHAR(60)
-);
-
-CREATE TABLE events (
-    event_id SERIAL PRIMARY KEY, 
-    event_name VARCHAR(60),
-    event_date DATE,
-    FOREIGN KEY (stadium_id) REFERENCES stadiums(stadium_id)
-);
-
-CREATE TABLE seats (
-    seat_id SERIAL PRIMARY KEY,
-    section INT,
-    row INT,
-    seat_number INT,
-    FOREIGN KEY (stadium_id) REFERENCES stadiums(stadium_id)
-);
-
-CREATE TABLE photos (
-    photo_id SERIAL PRIMARY KEY,
-    FOREIGN KEY (review_id) REFERENCES reviews(review_id), --might change, have foreign key in reviews isntead
-    FOREIGN KEY (user_id) REFERENCES users(user_id),
-    photo_url VARCHAR(100)
-);
-
-CREATE TABLE reviews (
-    review_id SERIAL PRIMARY KEY,
-    FOREIGN KEY (user_id) REFERENCES users(user_id),
-    FOREIGN KEY (event_id) REFERENCES events(event_id),
-    FOREIGN KEY (seat_id) REFERENCES seats(seat_id),
-    -- FOREIGN KEY (photo_id) REFERENCES photos(photo_id), -- may keep
-    rating INT NOT NULL,
-    comment TEXT
-);
-*/

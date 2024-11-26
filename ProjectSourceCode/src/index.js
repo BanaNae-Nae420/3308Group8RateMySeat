@@ -437,8 +437,8 @@ app.post('/addReview', auth, async (req, res) => {
   values ($1, $2); `;
 
   const Query7 = `
-  SELECT event_id FROM events
-  WHERE event_name = $1; `;
+  insert into events (event_name)
+  values ($1) returning event_id; `;
 
   const Query8 = `
   insert into reviews_to_events (review_id, event_id)

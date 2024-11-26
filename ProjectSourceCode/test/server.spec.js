@@ -183,6 +183,8 @@ describe('Testing /addReview API', () => {
   after(async () => {
     // Clean up database
     await db.query('TRUNCATE TABLE users CASCADE');
+    //await db.query('TRUNCATE TABLE reviews CASCADE')
+    //fix above command so test review doesn't show up in database
   });
   
   it('should add a review successfully', async () => {
@@ -194,10 +196,10 @@ describe('Testing /addReview API', () => {
     const reviewData = {
       review: 'Great event!',
       rating: 5,
-      section: 232,
+      section: 107,
       row: 1,
       seatNumber: 20,
-      eventName: 'Colorado Rockies vs San Francisco Giants',
+      eventName: 'Denver Broncos vs. Baltimore Ravens',
       image_url: 'http://example.com/image.jpg',
     };
   
