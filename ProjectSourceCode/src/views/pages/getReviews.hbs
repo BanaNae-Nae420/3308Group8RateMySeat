@@ -1,17 +1,118 @@
-{{#if results.length}}
-    {{#each results}}
-      <div class="review">
-        <h2>Review ID: {{review_id}}</h2>
-        <p><strong>Review:</strong> {{review}}</p>
-        <p><strong>Rating:</strong> {{rating}}/5</p>
-        <p><strong>Seat:</strong> Row {{row}}, Seat {{seat_number}}</p>
-        <p><strong>Event:</strong> {{event_name}} ({{event_date}})</p>
-        {{#if image_url}}
-          <div><img src="{{image_url}}" alt="Review Image"></div>
-        {{/if}}
-        <p><strong>Username:</strong> {{username}}</p>
-      </div>
-    {{/each}}
-  {{else}}
-    <p>No reviews available for this section.</p>
-{{/if}}
+<link rel="stylesheet" href="../css/styles.css">
+
+<h1>Filter Reviews</h1>
+<form id="reviewFilterForm">
+  <label for="section">Select Section:</label>
+  <select id="section" name="section">
+  </select>
+
+  <label for="event">Select Event:</label>
+  <select id="event" name="event">
+  </select>
+
+  <button type="submit">Filter</button>
+</form>
+
+<div class= "card-container" id="reviewsContainer">
+  <ul>
+    {{#if reviews.length}}
+      {{#each reviews}}
+        <div class="card" style="border-width:5px; width:350px; 
+        background-color:rgb(252, 252, 252); box-shadow: 5px 10px; 
+        display: inline-block; margin-right: 10px; margin-left:10px; 
+        margin-bottom:10px; margin-top:10px;">
+          {{#if image_url}}
+            <img src="{{image_url}}" alt="{{event_name}} picture" style="max-width: 100%; height: auto;" class="card-image"/>
+          {{/if}}
+          <p><strong>Event:</strong> {{event_name}}</p>
+          <p><strong>Review: </strong> {{review}}</p>
+          <p><strong>Rating: </strong> {{rating}} <span class="star">&#x2605;</span></p>
+          <p><strong>Section: </strong>{{section}}, <strong>Row: </strong> {{row}}, <strong>Seat: </strong> {{seat_number}}</p>
+        </div>
+      {{/each}}
+    {{else}}
+      <p>No reviews found.</p>
+    {{/if}}
+  </ul>
+</div>
+
+<script>
+  document.getElementById("reviewFilterForm").addEventListener("submit", async (event) => {
+    event.preventDefault();
+
+    const section = document.getElementById("section").value || '';
+    const eventName = document.getElementById("event").value || '';
+
+    // Construct the query string
+    const queryParams = new URLSearchParams({
+      sectionId: section,
+      event: eventName,
+    });
+
+    try {
+      const response = await fetch(`/getReviews?${queryParams.toString()}`);
+      if (!response.ok) {
+        throw new Error("Failed to fetch reviews");
+      }
+
+      // next 5 lines fix fixes issue with recursively displaying nav bar on DOM when filtering reviews
+      const htmlContent = await response.text();
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(htmlContent, 'text/html');
+      const reviewsSection = doc.querySelector('#reviewsContainer'); // Assuming the relevant part has an ID
+      document.getElementById('reviewsContainer').innerHTML = reviewsSection ? reviewsSection.innerHTML : '';   
+    } catch (error) {
+      console.error("Error fetching reviews:", error);
+      alert("An error occurred while fetching reviews. Please try again.");
+    }
+  });
+
+  // function to populate dropdowns
+  function populateDropdown(dropdownId, items, key, allLabel) {
+    const dropdown = document.getElementById(dropdownId);
+    dropdown.innerHTML = ''; // Clear existing options
+
+    // add "All Section" and "All Events to dropdowns"
+    const allOption = document.createElement('option');
+    allOption.value = ''; //  empty string to represent "all"
+    allOption.textContent = allLabel;
+    dropdown.appendChild(allOption);
+
+    items.forEach(item => {
+      const option = document.createElement('option');
+      option.value = item[key]; 
+      option.textContent = item[key];
+      dropdown.appendChild(option);
+    });
+  }
+
+  // fetch and populate sections
+  async function fetchSections() {
+    try {
+      const response = await fetch('/getSections');
+      if (!response.ok) throw new Error('Failed to fetch sections');
+      const sections = await response.json();
+      populateDropdown('section', sections, 'section', 'All Sections');
+    } catch (error) {
+      console.error('Error fetching sections:', error);
+      alert('Failed to fetch sections. Please try again.');
+    }
+  }
+
+  // fetch and populate events
+  async function fetchEvents() {
+    try {
+      const response = await fetch('/getEvents');
+      if (!response.ok) throw new Error('Failed to fetch events');
+      const events = await response.json();
+      populateDropdown('event', events, 'event_name', 'All Events');
+    } catch (error) {
+      console.error('Error fetching events:', error);
+      alert('Failed to fetch events. Please try again.');
+    }
+  }
+
+  // Initialize dropdowns on page load
+  fetchSections();
+  fetchEvents();
+</script>
