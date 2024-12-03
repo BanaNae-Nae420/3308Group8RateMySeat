@@ -1,3 +1,6 @@
+INSERT INTO users (username, password, question) VALUES
+('user1', '5d41402abc4b2a76b9719d11017c592', 'bob');
+
 -- inserting values into events
 INSERT INTO events (event_name, event_date) VALUES
 ('Denver Broncos vs. Kansas City Chiefs', '2024-12-01'),
