@@ -512,9 +512,22 @@ app.post('/deleteReview/:reviewID',auth,async (req,res) => {
 });
 
 app.get('/editReview/:reviewID',auth,async (req,res) => {
+  console.log("get editreview");
   const reviewID=req.params.reviewID;
+  console.log("get editreview 2");
+  const username= req.session.user?.username;
+  console.log("get editreview 3");
   try{
-    const review= await db.one('SELECT * FROM reviews WHERE review_id=$1',[reviewID]);
+    console.log("get editreview 4");
+    const reviewOwner = await db.oneOrNone('SELECT 1 FROM reviews_to_users WHERE review_id=$1 AND username=$2',[reviewID,username]);
+    console.log("get editreview 5");
+    console.log("username: ",username);
+    console.log("reviewOwner: ",reviewOwner);
+    if(!reviewOwner){
+      res.redirect('/ownReviews');
+    }
+
+    const review = await db.one('SELECT * FROM reviews WHERE review_id=$1',[reviewID])
 
     const seat = await db.one('SELECT * FROM seats s ' + 'JOIN reviews_to_seats rs ON s.seat_id = rs.seat_id ' + 'WHERE rs.review_id=$1',[reviewID]);
 
@@ -535,6 +548,14 @@ app.get('/editReview/:reviewID',auth,async (req,res) => {
 app.post('/editReview/:reviewID',auth,async (req,res) => {
   const reviewID=req.params.reviewID;
   const{review,rating,seat_number,section,row,event_name}=req.body;
+  const username= req.session.user.username;
+
+  const reviewOwner = await db.one('SELECT * FROM reviews_to_users WHERE review_id=$1 AND username=$2',[reviewID,username]);
+
+  if(!reviewOwner){
+    res.redirect('/ownReviews');
+  }
+
   try{
     await db.none('UPDATE reviews SET review=$1, rating=$2 WHERE review_id=$3',[review,rating,reviewID]);
 
