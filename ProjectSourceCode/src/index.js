@@ -79,7 +79,7 @@ const user = {
 // *****************************************************
 // ticket master api for later
 // *****************************************************
-axios({
+/*axios({
   url: `https://app.ticketmaster.com/discovery/v2/events.json`,
   method: 'GET',
   dataType: 'json',
@@ -134,6 +134,7 @@ Handlebars.registerHelper('sectionRange', function(start, end) {
   }
   return range;
 });
+*/
 
 // *****************************************************
 // API Routes
@@ -282,7 +283,13 @@ app.get('/getReviews', async (req,res) => {
 
 // find distinct sections to populate search
 app.get('/getSections', async (req, res) => {
-  const query = `SELECT DISTINCT section FROM seats ORDER BY section ASC;`;
+  // will only show sections that have a review associated with them
+  const query = `
+    SELECT DISTINCT s.section
+    FROM seats s
+    INNER JOIN reviews_to_seats r2s
+    ON s.seat_id = r2s.seat_id
+    ORDER BY s.section ASC;`;
   try {
     const sections = await db.any(query);
     res.json(sections.map(({ section }) => ({ section })));
@@ -294,7 +301,13 @@ app.get('/getSections', async (req, res) => {
 
 // find distinct events to populate search
 app.get('/getEvents', async (req, res) => {
-  const query = `SELECT DISTINCT event_name FROM events ORDER BY event_name ASC;`;
+  // will only show events that have a review associated with them
+  const query = `
+    SELECT DISTINCT e.event_name
+    FROM events e
+    INNER JOIN reviews_to_events r2e
+    ON e.event_id = r2e.event_id
+    ORDER BY e.event_name ASC;`;
   try {
     const events = await db.any(query);
     res.json(events.map(({ event_name }) => ({ event_name })));
