@@ -477,6 +477,124 @@ app.get('/ownReviews', auth, async (req,res) => {
 });
 
 
+
+ app.get('/ownReviews',auth,async (req,res) => {
+  if(!req.session||!req.session.user||!req.session.user.username){
+    console.log('no user session found');
+    return res.redirect('/login');
+  }
+
+    const username= req.session.user.username;
+    console.log('Session: ',req.session);
+    console.log('username: ',username);
+    try{
+      console.log('STEP1')
+      const reviews = await db.any(
+      `SELECT r.review_id, r.review, r.rating, s.seat_number, s.section, s.row, e.event_name, e.event_date, u.username
+      FROM reviews r
+      JOIN reviews_to_events re ON r.review_id = re.review_id
+      JOIN events e ON re.event_id = e.event_id
+      JOIN reviews_to_seats rs ON r.review_id = rs.review_id
+      JOIN seats s ON rs.seat_id = s.seat_id
+      JOIN reviews_to_users ru ON r.review_id = ru.review_id
+      JOIN users u ON u.username =ru.username
+      WHERE u.username = $1`, [username]);
+      console.log('reviews: ', reviews)
+    if(reviews.length==0){
+      console.log('STEP3')
+      res.render('pages/viewReviews', {
+        message: "You don't have any reviews yet!"
+      });
+      console.log('STEP4')
+    }
+    else{
+      console.log('STEP5')
+      res.render('pages/OwnReviews', { reviews: reviews });
+    }
+  }
+  catch(err){
+    console.log('STEP6')
+    console.error('error finding ownReviews: ',err.message)
+  }
+});
+
+app.post('/deleteReview/:reviewID',auth,async (req,res) => {
+    const reviewID = req.params.reviewID;
+    try{
+      await db.none('DELETE FROM reviews_to_events WHERE review_id=$1',[reviewID]);
+      await db.none('DELETE FROM reviews_to_seats WHERE review_id=$1',[reviewID]);
+      await db.none('DELETE FROM reviews_to_users WHERE review_id=$1',[reviewID]);
+
+      await db.none('DELETE FROM reviews WHERE review_id=$1',[reviewID]);
+
+      res.redirect('/ownReviews')
+    }
+    catch(err){
+      console.error('error deleting review:',err.message)
+    }
+});
+
+app.get('/editReview/:reviewID',auth,async (req,res) => {
+  console.log("get editreview");
+  const reviewID=req.params.reviewID;
+  console.log("get editreview 2");
+  const username= req.session.user?.username;
+  console.log("get editreview 3");
+  try{
+    console.log("get editreview 4");
+    const reviewOwner = await db.oneOrNone('SELECT 1 FROM reviews_to_users WHERE review_id=$1 AND username=$2',[reviewID,username]);
+    console.log("get editreview 5");
+    console.log("username: ",username);
+    console.log("reviewOwner: ",reviewOwner);
+    if(!reviewOwner){
+      res.redirect('/ownReviews');
+    }
+
+    const review = await db.one('SELECT * FROM reviews WHERE review_id=$1',[reviewID])
+
+    const seat = await db.one('SELECT * FROM seats s ' + 'JOIN reviews_to_seats rs ON s.seat_id = rs.seat_id ' + 'WHERE rs.review_id=$1',[reviewID]);
+
+    const event = await db.one('SELECT * FROM events e ' + 'JOIN reviews_to_events re ON e.event_id = re.event_id ' + 'WHERE re.review_id=$1',[reviewID]);
+
+    res.render('pages/editReview',{
+      review: review,
+      reviewID: reviewID,
+      seat: seat,
+      event: event
+    });
+  }
+  catch(err){
+    console.error('error in get editReview')
+  }
+});
+
+app.post('/editReview/:reviewID',auth,async (req,res) => {
+  const reviewID=req.params.reviewID;
+  const{review,rating,seat_number,section,row,event_name}=req.body;
+  const username= req.session.user.username;
+
+  const reviewOwner = await db.one('SELECT * FROM reviews_to_users WHERE review_id=$1 AND username=$2',[reviewID,username]);
+
+  if(!reviewOwner){
+    res.redirect('/ownReviews');
+  }
+
+  try{
+    await db.none('UPDATE reviews SET review=$1, rating=$2 WHERE review_id=$3',[review,rating,reviewID]);
+
+    await db.none('UPDATE seats SET seat_number=$1, section=$2, row=$3 WHERE seat_id=(SELECT seat_id FROM reviews_to_seats WHERE review_id=$4)',[seat_number,section,row,reviewID]);
+
+    await db.none('UPDATE events SET event_name=$1 WHERE event_id=(SELECT event_id FROM reviews_to_events WHERE review_id=$2)',[event_name,reviewID])
+
+    res.redirect('/ownReviews')
+  }
+  catch(err){
+    console.error('error in get editReview')
+  }
+});
+
+
+
 app.get('/logout', (req,res) => {
   req.session.destroy();
   res.render('pages/logout', {message: "Logged Out Successfully"});

@@ -1,0 +1,27 @@
+<h2>Edit Review:</h2>
+<form action="/editReview/{{reviewID}}" method="post">
+<div>
+    <label for="review"> Review: </label>
+    <input type="text" name="review" id="review" value="{{review.review}}" required /> <br>
+
+    <label for="rating"> Rating: </label>
+    <input type="number" name="rating" id="rating" value="{{review.rating}}" required /> <br>
+
+    <label for="section"> Seat Section: </label>
+    <input type="number" name="section" id="section" value="{{seat.section}}"required /> <br>
+
+    <label for="row"> Seat Row: </label>
+    <input type="number" name="row" id="row" value="{{seat.row}}" required /> <br>
+
+    <label for="seat_number"> Seat Number: </label>
+    <input type="number" name="seat_number" id="seat_number" value="{{seat.seat_number}}"/> <br>
+
+    <label for="event_name"> Event Name: </label>
+    <input type="text" name="event_name" id="event_name" value="{{event.event_name}}" required /> <br>
+
+    <button type="submit">Save Changes</button>
+    <button type="button" onclick="window.location.href='/ownReviews';">Cancel</button>
+</div>
+
+</form>
+
