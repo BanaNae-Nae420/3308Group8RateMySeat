@@ -79,7 +79,7 @@ const user = {
 // *****************************************************
 // ticket master api for later
 // *****************************************************
-/*axios({
+axios({
   url: `https://app.ticketmaster.com/discovery/v2/events.json`,
   method: 'GET',
   dataType: 'json',
@@ -89,13 +89,10 @@ const user = {
   params: {
     apikey: process.env.API_KEY,
     venueId: 'KovZpa3Wne', //you can choose any artist/event here
-    size: 1000 // you can choose the number of events you would like to return
+    size: 100 // you can choose the number of events you would like to return
   },
 })
 .then(results => {
-  //console.log(results.data._embedded.events);
-  //res.render('pages/discover', {results: events_array});
-
   results.data._embedded.events.forEach(event => {
     const eventData = {
       //event_id: event.id,              // Ticketmaster Event ID
@@ -105,27 +102,26 @@ const user = {
       //venue_id: event._embedded.venues[0].id,   // Venue ID
       //location: event._embedded.venues[0].location.address.line1, // Venue Location
       description: event.description || 'No description available',  // Event Description
-      //url: event.url                   // URL to the Event Page
+      url: event.url                   // URL to the Event Page
     };
 
-    db.none(`
-      INSERT INTO events(event_name, event_date, description)
-      VALUES($1, $2, $3)
-      ON CONFLICT(event_name) DO NOTHING;`, 
-      [eventData.name, eventData.date, eventData.description]
-    )
-    .then(() => {
-        console.log(`Inserted event: ${eventData.name}`);
-    })
-    .catch(error => {
-        console.error('Error inserting event:', error.message);
-    });
+    if(eventData.url && eventData.date) {
+      db.none(`
+        INSERT INTO ticketMasterEvents(event_name, event_date, description, url)
+        VALUES($1, $2, $3, $4);`, 
+        [eventData.name, eventData.date, eventData.description, eventData.url]
+      )
+      .catch(error => {
+          console.error('Error inserting event.', error.message);
+      });
+    }
+    
   })
 })
 .catch(err => {
   console.error('Error fetching events from Ticketmaster API:', err.message);
 });
-*/
+
 
 
 // *****************************************************
