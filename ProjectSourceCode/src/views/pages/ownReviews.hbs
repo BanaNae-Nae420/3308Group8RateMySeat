@@ -17,13 +17,13 @@
           <p><strong>Rating: </strong> {{rating}} <span class="star">&#x2605;</span></p>
           <p><strong>Section: </strong>{{section}}, <strong>Row: </strong> {{row}}, <strong>Seat: </strong> {{seat_number}}</p>
           <a href="/editReview/{{review_id}}">
-                <button>Edit Review</button>
-            </a>
-            {{#if review_id}}
-                 <form action="/deleteReview/{{review_id}}" method="post">
-                    <button type="submit">Delete Review</button>
-                </form>
-            {{/if}}
+              <button>Edit Review</button>
+          </a>
+          {{#if review_id}}
+            <form action="/deleteReview/{{review_id}}" method="post">
+              <button type="submit">Delete Review</button>
+            </form>
+          {{/if}}
         </div>
       {{/each}}
     {{else}}
