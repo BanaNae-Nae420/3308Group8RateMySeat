@@ -10,3 +10,9 @@ Carson - working on adding data for populating reviews and adding a /get_reviews
 Aiden - working on front end for register and login pages
 Derek - working on front end for viewing reviews
 Jordan - working on a forgot password implementation 
+
+Updates After Meeting (11/19)
+Carson - working on ticketmaster API implementation and front end for it
+Jordan - working on edit and delete API
+Aiden - working on front end css and format
+Derek - working on fixing review filter and css 

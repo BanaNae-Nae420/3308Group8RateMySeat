@@ -102,6 +102,7 @@ describe('Testing /login API', () => {
       hashedPassword,
       testUser.question
     ]);
+    console.log("test");
   });
   
   beforeEach(() => {
@@ -153,6 +154,7 @@ describe('Testing /login API', () => {
 
 describe('Testing /addReview API', () => {
   let agent;
+  let review_id; //used to store review_id during tests
   const testUser = {
     username: 'testuser',
     password: 'testpass123',
@@ -183,6 +185,17 @@ describe('Testing /addReview API', () => {
   after(async () => {
     // Clean up database
     await db.query('TRUNCATE TABLE users CASCADE');
+    if (review_id) {
+      try {
+        // delete test review. cascade will delete connected table entries
+        await db.none('DELETE FROM reviews WHERE review_id = $1', [review_id]);
+  
+        console.log(`Test review with review_id ${review_id} deleted.`);
+      } catch (error) {
+        console.error('Error deleting test review:', error);
+      }
+    }
+    
   });
   
   it('should add a review successfully', async () => {
@@ -194,10 +207,10 @@ describe('Testing /addReview API', () => {
     const reviewData = {
       review: 'Great event!',
       rating: 5,
-      section: 232,
+      section: 107,
       row: 1,
       seatNumber: 20,
-      eventName: 'Colorado Rockies vs San Francisco Giants',
+      eventName: 'Denver Broncos vs. Baltimore Ravens',
       image_url: 'http://example.com/image.jpg',
     };
   
@@ -208,6 +221,9 @@ describe('Testing /addReview API', () => {
     expect(res).to.have.status(200);
     expect(res.body.status).to.equals('success');
     expect(res.body.message).to.equals('data added successfully');
+    expect(res.body).to.have.property('review_id');
+    // review_id used to delete test review above
+    review_id = res.body.review_id.review_id;
   });
   
   it('should fail to add a review if not authenticated', async () => {
@@ -223,6 +239,7 @@ describe('Testing /addReview API', () => {
       
     // Send POST request to /addReview
     const res = await chai.request(app).post('/addReview').send(reviewData);
+    
     // Expect redirect to /login and 200 status
     expect(res).to.have.status(200); 
     expect(res).to.redirect;

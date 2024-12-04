@@ -28,7 +28,7 @@ const hbs = handlebars.create({
 
 // database configuration
 const dbConfig = {
-  host: 'db', // the database server
+  host: process.env.HOST, // the database server
   port: 5432, // the database port
   database: process.env.POSTGRES_DB, // the database name
   user: process.env.POSTGRES_USER, // the user account to connect with
@@ -144,7 +144,7 @@ Handlebars.registerHelper('sectionRange', function(start, end) {
 // *****************************************************
 
 app.get('/', (req, res) => {
-  res.redirect('/sections'); //this will call the /anotherRoute route in the API
+  res.redirect('/getReviews'); //this will call the /anotherRoute route in the API
 });
 
 app.get('/register', (req,res) => {
@@ -157,73 +157,6 @@ app.get('/login', (req,res) => {
 app.get('/forgot', (req,res) => {
   res.render('pages/forgot');
 });
-
-// renders pages/sections with section numbers 
-app.get('/sections', async (req,res) => {
-  const sections = [
-    { level: '100 Level', start: 105, end: 160 },
-    { level: '200 Level', start: 201, end: 247 },
-    { level: '300 Level', start: 301, end: 347 },
-    { level: 'Suites', start: 1, end: 45 }
-  ];
-  res.render('pages/sections', {sections});
-});
-
-app.get('/getReview/:sectionId', async (req,res) => {
-  const sectionId = req.params.sectionId;
-
-  const query = `SELECT
-    r.review_id,
-    r.review,
-    r.rating,
-    s.seat_id,
-    s.section,
-    s.row,
-    s.seat_number,
-    u.username,
-    e.event_id,
-    e.event_name,
-    e.event_date,
-    e.description,
-    i.image_id,
-    i.image_url
-  FROM
-    reviews r
-  JOIN
-    reviews_to_seats rs ON r.review_id = rs.review_id
-  JOIN
-    seats s ON s.seat_id = rs.seat_id
-  JOIN
-    reviews_to_users ru ON r.review_id = ru.review_id
-  JOIN
-    users u ON u.username = ru.username
-  JOIN
-    reviews_to_events re ON r.review_id = re.review_id
-  JOIN
-    events e ON e.event_id = re.event_id
-  LEFT JOIN
-    reviews_to_images ri ON r.review_id = ri.review_id
-  LEFT JOIN
-    images i ON i.image_id = ri.image_id
-  WHERE
-    s.section = $1;`
-  try {
-    const review_data = await db.any(query, [sectionId]);
-
-    console.log(review_data);
-    res.render('pages/getReviews', {
-      results: review_data,
-      message: `Showing review from section ${sectionId}`
-    });
-  } catch(error) {
-    console.error(error);
-    res.status(500).json({
-      status: 'error',
-      message: 'an error occurred while fetching data',
-      error: error.message,
-    });
-  }
-}); 
 
 //lab 11 api test
 app.get('/welcome', (req, res) => {
@@ -239,8 +172,12 @@ app.post('/register', async (req,res) => {
       const hash = await bcrypt.hash(password, 10);
       
       await db.none(query, [username, hash, question])
-      //console.log("success");
-      res.redirect('/login');
+      console.log("user registration success");
+      req.session.user = {
+            username: username
+          };
+          req.session.save();
+      res.redirect('/getReviews');
   } catch (err) {
       console.log(err.message);
       //allows 'value too long' error in postgres be caught to return a 400 error
@@ -250,10 +187,12 @@ app.post('/register', async (req,res) => {
           message: "Username or teacher name Exceeds Character Limit"
         });
       }
-      else {
-        res.redirect('/register');
-      }  
-  }
+      // Redirect to the registration page for other errors
+      res.status(500).json({
+        status: 500,
+        message: "An error occurred during registration. Please try again."
+      });
+    }
 });
 
 app.post('/login', async (req,res) => {
@@ -270,7 +209,7 @@ app.post('/login', async (req,res) => {
             username: user.username
           };
           req.session.save();
-          res.redirect("/sections");
+          res.redirect("/getReviews");
       }
       else {
           console.log("incorrect password")
@@ -291,7 +230,83 @@ app.post('/login', async (req,res) => {
     }
 });
 
- 
+app.get('/getReviews', async (req,res) => {
+  const sectionId = req.query.sectionId || null;
+  const event = req.query.event || null;
+
+  const query = `SELECT
+    r.review_id,
+    r.review,
+    r.rating,
+    s.seat_id,
+    s.section,
+    s.row,
+    s.seat_number,
+    u.username,
+    e.event_id,
+    e.event_name,
+    e.event_date,
+    i.image_id,
+    i.image_url
+  FROM
+    reviews r
+  JOIN
+    reviews_to_seats rs ON r.review_id = rs.review_id
+  JOIN
+    seats s ON s.seat_id = rs.seat_id
+  LEFT JOIN
+    reviews_to_users ru ON r.review_id = ru.review_id
+  LEFT JOIN
+    users u ON u.username = ru.username
+  JOIN
+    reviews_to_events re ON r.review_id = re.review_id
+  JOIN
+    events e ON e.event_id = re.event_id
+  LEFT JOIN
+    reviews_to_images ri ON r.review_id = ri.review_id
+  LEFT JOIN
+    images i ON i.image_id = ri.image_id
+  WHERE
+    ($1::text IS NULL OR s.section = $1)
+  AND 
+    ($2::text IS NULL OR e.event_name = $2);`;
+  try {
+    const reviews = await db.any(query, [sectionId, event]);
+    //console.log(reviews);
+    res.render('pages/getReviews', { reviews });
+  } catch(error) {
+    console.error(error);
+    res.status(500).json({
+      status: 'error',
+      message: 'an error occurred while fetching data',
+      error: error.message,
+    });
+  }
+});
+
+// find distinct sections to populate search
+app.get('/getSections', async (req, res) => {
+  const query = `SELECT DISTINCT section FROM seats ORDER BY section ASC;`;
+  try {
+    const sections = await db.any(query);
+    res.json(sections.map(({ section }) => ({ section })));
+  } catch (error) {
+    console.error('Error fetching sections:', error);
+    res.status(500).json({ error: 'An error occurred while fetching sections.' });
+  }
+});
+
+// find distinct events to populate search
+app.get('/getEvents', async (req, res) => {
+  const query = `SELECT DISTINCT event_name FROM events ORDER BY event_name ASC;`;
+  try {
+    const events = await db.any(query);
+    res.json(events.map(({ event_name }) => ({ event_name })));
+  } catch (error) {
+    console.error('Error fetching events:', error);
+    res.status(500).json({ error: 'An error occurred while fetching events.' });
+  }
+});
 
 app.post('/forgot',async (req,res) => {
   const username = req.body.username;
@@ -302,34 +317,33 @@ app.post('/forgot',async (req,res) => {
   try {
     const user = await db.one(query, [username])
     console.log(user)
-    if(user.question == userAnswer){
+    if(user.question == userAnswer) {
       console.log("success");
       //update password:
-        const hashedPassword= await bcrypt.hash(userPassword,10);
-        const queryTWO = 'UPDATE users SET password= $1 WHERE username= $2 RETURNING *;';
-        await db.one(queryTWO,[hashedPassword,username])
+      const hashedPassword= await bcrypt.hash(userPassword,10);
+      const queryTWO = 'UPDATE users SET password= $1 WHERE username= $2 RETURNING *; ';
+      await db.one(queryTWO,[hashedPassword,username])
       res.render("pages/login",{
-       message: `new password is: ${userPassword}`
+        message: `new password is: ${userPassword}`
       });
     } else {
         console.log("incorrect answer to personal question")
         res.render('pages/forgot', {
-            message : `Wrong teacher!`
+          message : `Wrong teacher!`
         }); 
+      }
+  } catch (err) {
+      console.log(err.message)
+      if(err.message === "No data returned from the query.") {
+        res.render('pages/register', {
+          message: "Username Not Found. Please Sign Up."
+        });
+      }
+      else {
+        res.redirect('/register');
+      }
     }
-} catch (err) {
-    console.log(err.message)
-    if(err.message === "No data returned from the query.") {
-      res.render('pages/register', {
-        message: "Username Not Found. Please Sign Up."
-      });
-    }
-    else {
-      res.redirect('/register');
-    }
-  }
 });
-
 
 // Authentication Middleware.
 const auth = (req, res, next) => {
@@ -372,17 +386,19 @@ app.post('/addReview', auth, async (req, res) => {
   values ($1, $2); `;
 
   const Query7 = `
-  SELECT event_id FROM events
-  WHERE event_name = $1; `;
+  insert into events (event_name)
+  values ($1) returning event_id; `;
 
   const Query8 = `
   insert into reviews_to_events (review_id, event_id)
   values ($1, $2); `;
 
   try {
+    let review_id;
+
     await db.tx(async task => {
       //add review and reviews_to_users
-      let review_id = await task.one(Query, [req.body.review, req.body.rating]);
+      review_id = await task.one(Query, [req.body.review, req.body.rating]);
       await task.none(Query4, [req.session.user.username, review_id.review_id]);
       //console.log(review_id);
 
@@ -408,51 +424,58 @@ app.post('/addReview', auth, async (req, res) => {
 
     res.status(200).json({
       status: 'success',
+      review_id: review_id,
       message: 'data added successfully',
       // need to add a render 
     });
 
   } catch (err) {
-    console.log(err);
+      console.log(err);
+      res.status(500).json({
+        status: 'error',
+        message: 'an error occurred while adding data',
+        error: err.message,
+      });
+    }
+});
+
+
+app.get('/ownReviews', auth, async (req,res) => {
+  // dont need this because it is under authentication middleware
+  /*if(!req.session||!req.session.user||!req.session.user.username){
+    console.log('no user session found');
+    return res.redirect('/login');
+  } */
+
+  const username= req.session.user.username;
+  //console.log('Session: ',req.session);
+  //console.log('username: ',username);
+  try {
+    //console.log('STEP1')
+    const reviews = await db.any(
+    `SELECT r.review_id, r.review, r.rating, s.seat_number, 
+    s.section, s.row, e.event_name, e.event_date, u.username
+    FROM reviews r
+    JOIN reviews_to_events re ON r.review_id = re.review_id
+    JOIN events e ON re.event_id = e.event_id
+    JOIN reviews_to_seats rs ON r.review_id = rs.review_id
+    JOIN seats s ON rs.seat_id = s.seat_id
+    JOIN reviews_to_users ru ON r.review_id = ru.review_id
+    JOIN users u ON u.username =ru.username
+    WHERE u.username = $1`, [username]);
+
+    res.render('pages/ownReviews', { reviews });
+  }
+  catch(err) {
+    //console.log('STEP6')
+    console.error('error finding ownReviews: ', err.message)
     res.status(500).json({
       status: 'error',
-      message: 'an error occurred while adding data',
       error: err.message,
     });
   }
 });
 
-app.get('/viewReviews', async (req, res) => {
-  try {
-      const events = await db.any(`SELECT DISTINCT event_name FROM events`);
-      res.render('pages/viewReviews', { events });
-  } catch (err) {
-      console.error('Error getting event names', err);
-      res.status(500).send('Internal Server Error');
-  }
- });
-
- app.post('/viewReviews', async (req, res) => {
-  try {
-      const eventName = req.body.events;
-
-      const reviewInfo = await db.any(`SELECT r.review_id, r.review, r.rating, s.seat_number, s.section, s.row, e.event_name, e.event_date
-      FROM reviews r
-      JOIN reviews_to_events re ON r.review_id = re.review_id
-      JOIN events e ON re.event_id = e.event_id
-      JOIN reviews_to_seats rs ON r.review_id = rs.review_id
-      JOIN seats s ON rs.seat_id = s.seat_id
-      WHERE e.event_name = $1`, [eventName]);
-      
-      res.render('pages/viewReviews', {
-        eventName,
-        reviewInfo
-      });
-  } catch (err) {
-      console.error('Error getting event names', err);
-      res.status(500).send('Internal Server Error');
-}
- });
 
 
  app.get('/ownReviews',auth,async (req,res) => {
@@ -590,9 +613,6 @@ app.get('/logout', (req,res) => {
     res.status(500).send('Internal Server Error');
   }
 }); */
-
-
-
 
 // starting server
 const server = app.listen(3000);

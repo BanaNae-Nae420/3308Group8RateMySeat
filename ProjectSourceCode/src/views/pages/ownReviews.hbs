@@ -1,14 +1,22 @@
-<h2>Your reviews:</h2>
-{{#if reviews.length}}
-    <ul>
-        {{#each reviews}}
-         
-            <li class="review">
-            <p>Rating: {{rating}}</p>
-            <p>Review:{{review}}</p>
-            <p>Seat:{{seat_number}}</p>
-            <p>Event:{{event_name}}</p>
-            <a href="/editReview/{{review_id}}">
+<link rel="stylesheet" href="../css/styles.css">
+
+<h2>Your reviews</h2>
+<div class= "card-container" id="reviewsContainer">
+  <ul>
+    {{#if reviews.length}}
+      {{#each reviews}}
+        <div class="card" style="border-width:5px; width:350px; 
+        background-color:rgb(252, 252, 252); box-shadow: 5px 10px; 
+        display: inline-block; margin-right: 10px; margin-left:10px; 
+        margin-bottom:10px; margin-top:10px;">
+          {{#if image_url}}
+            <img src="{{image_url}}" alt="{{event_name}} picture" style="max-width: 100%; height: auto;" class="card-image"/>
+          {{/if}}
+          <p><strong>Event:</strong> {{event_name}}</p>
+          <p><strong>Review: </strong> {{review}}</p>
+          <p><strong>Rating: </strong> {{rating}} <span class="star">&#x2605;</span></p>
+          <p><strong>Section: </strong>{{section}}, <strong>Row: </strong> {{row}}, <strong>Seat: </strong> {{seat_number}}</p>
+          <a href="/editReview/{{review_id}}">
                 <button>Edit Review</button>
             </a>
             {{#if review_id}}
@@ -16,10 +24,14 @@
                     <button type="submit">Delete Review</button>
                 </form>
             {{/if}}
-        </li>
-    {{/each}}
-    </ul>
+        </div>
+      {{/each}}
+    {{else}}
+      <p>No reviews found</p>
+    {{/if}}
+  </ul>
+</div>
     
-{{else}}
-    <p>No reviews Found<p>
-{{/if}}
+
+
+
