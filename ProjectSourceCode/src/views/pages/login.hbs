@@ -7,25 +7,33 @@
     }
 </style>
 
-<h2>Login</h2>
-<div class="container">
-<form method="post" action="/login"  class="text-center">
-    <label for="username"> Username: </label>
-    <input type="text" name="username" required /> <br>
-    <div class="container pt-2"></div>
-    <label for="password" class="text-center"> Password: </label>
-    <input type="password" name="password" required /> <br>
-    <div class="container pt-2"></div>
-    <input type="submit" value="Login" /> <br>
-    <p>Don't have an account? 
-        <a href="/register">Register Here</a>
-    </p>
-    <div class="container pt-2"></div>
-    <p>Forgot Password? 
-        <a href="/forgot">Retrieve password</a>
-    </p>
-</form>
+<div class="container col-xl-10 col-xxl-8 px-4 py-5">
+  <div class="row align-items-center g-lg-5 py-5">
+    <div class="col-lg-7 text-center text-lg-start">
+      <h1 class="display-4 fw-bold lh-1 text-body-emphasis mb-3">Login</h1>
+      <p class="col-lg-10 fs-4">Returning user? Login in with your credentials to return to the fun.</p>
+    </div>
+    <div class="col-md-10 mx-auto col-lg-5">
+      <form method="post" action="/login"  class="p-4 p-md-5 border rounded-3 bg-body-tertiary">
+        <label for="username"> Username: </label>
+        <input type="text" name="username" required /> <br>
+        <div class="container pt-2"></div>
+        <label for="password" class="text-center"> Password: </label>
+        <input type="password" name="password" required /> <br>
+        <div class="container pt-2"></div>
+        <input type="submit" value="Login" /> <br>
+        <p>Don't have an account? 
+            <a href="/register">Register Here</a>
+        </p>
+        <div class="container pt-2"></div>
+        <p>Forgot Password? 
+            <a href="/forgot">Retrieve password</a>
+        </p>
+    </form>
+    </div>
+  </div>
 </div>
+
 <div class="container pt-5"></div>
 <div class="row bg-dark text-white">
   <div class="col-sm-6 col-md-4">
