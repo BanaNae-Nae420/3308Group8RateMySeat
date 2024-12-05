@@ -79,7 +79,7 @@ const user = {
 // *****************************************************
 // ticket master api for later
 // *****************************************************
-/*axios({
+axios({
   url: `https://app.ticketmaster.com/discovery/v2/events.json`,
   method: 'GET',
   dataType: 'json',
@@ -95,21 +95,21 @@ const user = {
 .then(results => {
   results.data._embedded.events.forEach(event => {
     const eventData = {
-      //event_id: event.id,              // Ticketmaster Event ID
-      name: event.name,                // Event Name
-      date: event.dates.start.dateTime,// Event Date and Time
+      name: event.name,
+      date: event.dates.start.dateTime,
       //venue_name: event._embedded.venues[0].name, // Venue Name
       //venue_id: event._embedded.venues[0].id,   // Venue ID
       //location: event._embedded.venues[0].location.address.line1, // Venue Location
-      description: event.description || 'No description available',  // Event Description
-      url: event.url                   // URL to the Event Page
-    };
+      description: event.description || 'No description available',
+      url: event.url,
+      image: event.images[1].url
+    }
 
     if(eventData.url && eventData.date) {
       db.none(`
-        INSERT INTO ticketMasterEvents(event_name, event_date, description, url)
-        VALUES($1, $2, $3, $4);`, 
-        [eventData.name, eventData.date, eventData.description, eventData.url]
+        INSERT INTO ticketMasterEvents(event_name, event_date, description, url, image_url)
+        VALUES($1, $2, $3, $4, $5);`, 
+        [eventData.name, eventData.date, eventData.description, eventData.url, eventData.image]
       )
       .catch(error => {
           console.error('Error inserting event.', error.message);
@@ -134,7 +134,7 @@ Handlebars.registerHelper('sectionRange', function(start, end) {
   }
   return range;
 });
-*/
+
 
 // *****************************************************
 // API Routes
@@ -272,11 +272,11 @@ app.get('/getReviews', async (req,res) => {
     //console.log(reviews);
     res.render('pages/getReviews', { reviews });
   } catch(error) {
-    console.error(error);
-    res.status(500).json({
-      status: 'error',
-      message: 'an error occurred while fetching data',
-      error: error.message,
+      console.error(error);
+      res.status(500).json({
+        status: 'error',
+        message: 'an error occurred while fetching data',
+        error: error.message,
     });
   }
 });
@@ -316,6 +316,23 @@ app.get('/getEvents', async (req, res) => {
     res.status(500).json({ error: 'An error occurred while fetching events.' });
   }
 });
+
+app.get('/upcomingEvents', async (req, res) => {
+  const query = `
+    SELECT DISTINCT ON (event_name, event_date) * 
+    FROM ticketMasterEvents ORDER BY event_date, event_name;`;
+  try {
+    const events = await db.any(query);
+    res.render('pages/upcomingEvents', { events });
+  } catch (error) {
+      console.error(error);
+      res.status(500).json({
+        status: 'error',
+        message: 'an error occurred while fetching data',
+        error: error.message,
+      });
+  }
+})
 
 app.post('/forgot',async (req,res) => {
   const username = req.body.username;

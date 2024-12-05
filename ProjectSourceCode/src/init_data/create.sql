@@ -83,5 +83,6 @@ CREATE TABLE ticketMasterEvents (
   event_name VARCHAR(100),
   event_date TIMESTAMP,
   description TEXT,
-  url VARCHAR(500)
+  url VARCHAR(500),
+  image_url VARCHAR(500)
 );
