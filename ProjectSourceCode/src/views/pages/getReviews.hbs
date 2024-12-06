@@ -22,9 +22,9 @@
         background-color:rgb(252, 252, 252); box-shadow: 5px 10px; 
         display: inline-block; margin-right: 10px; margin-left:10px; 
         margin-bottom:10px; margin-top:10px;">
-          {{#if image_url}}
-            <img src="{{image_url}}" alt="{{event_name}} picture" style="width: 100%; height: auto;" class="card-image"/>
-          {{/if}}
+      {{#if image_url}}
+        <img src="{{image_url}}" alt="{{event_name}} picture" style="width: 100%; height: auto;" class="card-image"/>
+      {{/if}}
           <p><strong>Event:</strong> {{event_name}}</p>
           <p><strong>Review: </strong> {{review}}</p>
           <p><strong>Rating: </strong> {{rating}} <span class="star">&#x2605;</span></p>

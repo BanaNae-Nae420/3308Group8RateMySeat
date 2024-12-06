@@ -274,7 +274,7 @@ app.get('/getReviews', async (req,res) => {
     ($2::text IS NULL OR e.event_name = $2);`;
   try {
     const reviews = await db.any(query, [sectionId, event]);
-    //console.log(reviews);
+    console.log(reviews);
     res.render('pages/getReviews', { reviews });
   } catch(error) {
       console.error(error);
