@@ -160,6 +160,11 @@ app.get('/welcome', (req, res) => {
   res.json({status: 'success', message: 'Welcome!'});
 });
 
+app.use((req, res, next) => {
+  res.locals.user = req.session.user || null; 
+  next();
+});
+
 app.post('/register', async (req,res) => {
   const username = req.body.username;
   const password = req.body.password;
@@ -574,7 +579,7 @@ app.post('/editReview/:reviewID',auth,async (req,res) => {
 
 app.get('/logout', (req,res) => {
   req.session.destroy();
-  res.render('pages/logout', {message: "Logged Out Successfully"});
+  res.redirect('/viewReviews') //fix logout
 });
 
 /*app.get('/profile', (req, res) => {
