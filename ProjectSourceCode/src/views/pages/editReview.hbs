@@ -1,27 +1,74 @@
-<h2>Edit Review:</h2>
-<form action="/editReview/{{reviewID}}" method="post">
-<div>
-    <label for="review"> Review: </label>
-    <input type="text" name="review" id="review" value="{{review.review}}" required /> <br>
 
-    <label for="rating"> Rating: </label>
-    <input type="number" name="rating" id="rating" value="{{review.rating}}" required /> <br>
+<link rel="stylesheet" href="/views/css/styles.css">
 
-    <label for="section"> Seat Section: </label>
-    <input type="number" name="section" id="section" value="{{seat.section}}"required /> <br>
+    <div style=" display: flex; justify-content: center; align-items: center; margin-top:30px;">
 
-    <label for="row"> Seat Row: </label>
-    <input type="number" name="row" id="row" value="{{seat.row}}" required /> <br>
+        <div style="border: 2px solid; padding: 20px; width: 400px; border-radius: 8px;">
 
-    <label for="seat_number"> Seat Number: </label>
-    <input type="number" name="seat_number" id="seat_number" value="{{seat.seat_number}}"/> <br>
+            <h2 style="text-align: center;">Edit Review</h2>
 
-    <label for="event_name"> Event Name: </label>
-    <input type="text" name="event_name" id="event_name" value="{{event.event_name}}" required /> <br>
+            <form action="/editReview/{{reviewID}}" method="post">
 
-    <button type="submit">Save Changes</button>
-    <button type="button" onclick="window.location.href='/ownReviews';">Cancel</button>
-</div>
+                <div style="margin-bottom: 20px;">
+                    <label for="eventName"> Event Name: </label>
+                    <input type="text" name="eventName" required style="width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box;" value="{{event.event_name}}">
+                </div>
 
-</form>
+            <div style="margin-bottom: 20px; display: flex; align-items: center;">
+
+                <label for="rating" style="margin-right: 10px;  ">Rating:</label>
+
+            <fieldset style="border: none; justify-content: center; align-items: center; direction: rtl; display: flex;">
+                
+                <input type="radio" id="star5" name="rating" value="5" required style="display: none;" />
+
+                <label for="star5" style="font-size: 24px;">★</label>
+    
+                <input type="radio" id="star4" name="rating" value="4" style="display: none;" />
+
+                <label for="star4" style="font-size: 24px;">★</label>
+    
+                <input type="radio" id="star3" name="rating" value="3" style="display: none;" />
+                <label for="star3" style="font-size: 24px;">★</label>
+    
+                <input type="radio" id="star2" name="rating" value="2" style="display: none;" />
+                <label for="star2" style="font-size: 24px;">★</label>
+    
+                <input type="radio" id="star1" name="rating" value="1" style="display: none;" />
+                <label for="star1" style="font-size: 24px;">★</label>
+                </fieldset>
+            </div>
+
+                <div style="display: flex; justify-content: space-between; gap: 10px; margin-bottom: 10px;">
+                    <div style="flex: 1;">
+                        <label for="section">Seat Section:</label>
+                        <input type="number" name="section" required style="width: 100%;" value="{{seat.section}}"/>
+                    </div>
+                    <div style="flex: 1;">
+                        <label for="row">Seat Row:</label>
+                        <input type="number" name="row" required style="width: 100%;" value="{{seat.row}}" />
+                    </div>
+                    <div style="flex: 1;">
+                        <label for="seatNumber">Seat Number:</label>
+                        <input type="number" name="seatNumber" required style="width: 100%;" value="{{seat.seat_number}}" />
+                    </div>
+                </div>
+
+            
+            
+                <div style="margin-bottom: 20px;">
+                    <label for="review" style="margin-top:20px;"> Review: </label>
+                    <textarea name="review" required style="width: 100%; height: 100px; border: 1px solid #ccc; border-radius: 8px; font-size: 14px; resize: vertical;"> {{review.review}} </textarea>
+
+                </div>
+
+                <div style="display: flex; justify-content: center;">
+                    <input type="submit" value="Submit" style="margin-top: 30px; margin-bottom:-30px;" />
+                </div>
+                <br> <br>
+            </form>
+        </div>
+    </div>
+
+
 
