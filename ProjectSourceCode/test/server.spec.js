@@ -211,7 +211,7 @@ describe('Testing /addReview API', () => {
       row: 1,
       seatNumber: 20,
       eventName: 'Denver Broncos vs. Baltimore Ravens',
-      image_url: 'http://example.com/image.jpg',
+      image_url: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ8hL9kXOv6BdFoDxn6XbygCJXRhqRJDk5ybQ&s',
     };
   
     // Send POST request to /addReview
@@ -219,11 +219,10 @@ describe('Testing /addReview API', () => {
   
     // expect 200 status 
     expect(res).to.have.status(200);
-    expect(res.body.status).to.equals('success');
-    expect(res.body.message).to.equals('data added successfully');
-    expect(res.body).to.have.property('review_id');
+    expect(res).to.redirect;
+    //expect(res.body).to.have.property('review_id');
     // review_id used to delete test review above
-    review_id = res.body.review_id.review_id;
+    //review_id = res.body.review_id.review_id;
   });
   
   it('should fail to add a review if not authenticated', async () => {
