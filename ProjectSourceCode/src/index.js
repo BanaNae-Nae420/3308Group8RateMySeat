@@ -448,12 +448,7 @@ app.post('/addReview', auth, async (req, res) => {
       } 
     }); 
 
-    res.status(200).json({
-      status: 'success',
-      review_id: review_id,
-      message: 'data added successfully',
-      // need to add a render 
-    });
+    res.redirect('/ownReviews');
 
   } catch (err) {
       console.log(err);
