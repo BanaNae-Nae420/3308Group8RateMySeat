@@ -34,7 +34,7 @@ Ensure the following are installed on your machine:
 1. Clone the repository to your local computer (assuming SSH):
 `git clone git@github.com:BanaNae-Nae420/3308Group8RateMySeat.git`
 
-2. Create a .env file in the root directory with the following variables:
+2. Create a .env file in the **ProjectSourceCode** directory with the following variables:
 ```
 POSTGRES_USER=""
 POSTGRES_PASSWORD=""
@@ -53,9 +53,13 @@ HOST="db"
 http://localhost:3000/
 
 ## How to Run Tests
-The tests will automatically be ran when docker is brought up. Please note they will only run if there is no existing volume. 
+Tests will automatically run when Docker is started if no existing volume is present.
 
-Use `docker compose down -v` to delete an existing volume.
+To remove an existing volume and rerun tests, use:
+```
+docker compose down -v
+docker compose up -d
+````
 
 ## Deployed Application
 
