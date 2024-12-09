@@ -12,19 +12,29 @@ Carson Mattei, Derek Marraudino, Jordan Law, Aidan Rotter
 
 ## Technology Stack Used for Project
 **Front End** : HTML, CSS, Bootstrap, Handlebars
+
 **Back End** : Node.js, Express.js, PostgreSQL
+
 **External API's** : Ticket Master API
+
 **Testing Tools** : Mocha, Chai
+
 **Deployment Enviornment** : Render
+
 **Containerization** : Docker
+
 **Version Control** : Git with Github
 
 ## Prerequisites to Run Application
-This software needs to be installed if you intend to locally run the application
-Docker, git
+Ensure the following are installed on your machine:
+- Docker
+* Git
 
 ## Instructions on How to Run Application Locally
-Assuming you have docker and git properly installed, clone the repo to your local computer. An environmental file (.env) must be added with the following info
+1. Clone the repository to your local computer (assuming SSH):
+`git clone git@github.com:BanaNae-Nae420/3308Group8RateMySeat.git`
+
+2. Create a .env file in the root directory with the following variables:
 ```
 POSTGRES_USER=""
 POSTGRES_PASSWORD=""
@@ -34,10 +44,13 @@ SESSION_SECRET=""
 API_KEY=""
 HOST="db"
 ```
-Note `API_KEY` must be from Ticket Master Developer Discovery API
+`API_KEY` must be from Ticket Master Developer Discovery API
 
-Run `docker compose up -d` to run docker decomposed from the terminal
-Once tests run, go to http://localhost:3000/
+3. Run the application using Docker:
+`docker compose up -d`
+
+4. Access the application in your browser at: 
+http://localhost:3000/
 
 ## How to Run Tests
 The tests will automatically be ran when docker is brought up. Please note they will only run if there is no existing volume. 
