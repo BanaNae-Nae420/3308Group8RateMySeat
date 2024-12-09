@@ -12,18 +12,24 @@
           {{#if image_url}}
             <img src="{{image_url}}" alt="{{event_name}} picture" style="width: 100%; height: auto;" class="card-image"/>
           {{/if}}
+          <div style="margin-left:5px;">
           <p><strong>Event:</strong> {{event_name}}</p>
           <p><strong>Review: </strong> {{review}}</p>
-          <p><strong>Rating: </strong> {{rating}} <span class="star">&#x2605;</span></p>
+          <p><strong>Rating: </strong>
+          <span style="color: #ffcc00;">
+            {{getRatingStars rating}}
+          </span>
+          </p>
           <p><strong>Section: </strong>{{section}}, <strong>Row: </strong> {{row}}, <strong>Seat: </strong> {{seat_number}}</p>
           <a href="/editReview/{{review_id}}">
-              <button>Edit Review</button>
+              <button style="margin-bottom:10px">Edit Review</button>
           </a>
           {{#if review_id}}
             <form action="/deleteReview/{{review_id}}" method="post">
-              <button type="submit">Delete Review</button>
+              <button type="submit" style="margin-bottom:10px">Delete Review</button>
             </form>
           {{/if}}
+          </div>
         </div>
       {{/each}}
     {{else}}

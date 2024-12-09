@@ -232,6 +232,11 @@ app.post('/login', async (req,res) => {
     }
 });
 
+//returns correct number of stars for getReviews page
+Handlebars.registerHelper('getRatingStars', function(rating) {
+  return '★'.repeat(rating); 
+});
+
 app.get('/getReviews', async (req,res) => {
   const sectionId = req.query.sectionId || null;
   const event = req.query.event || null;
