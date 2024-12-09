@@ -10,8 +10,8 @@
             <form action="/editReview/{{reviewID}}" method="post">
 
                 <div style="margin-bottom: 20px;">
-                    <label for="eventName"> Event Name: </label>
-                    <input type="text" name="eventName" required style="width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box;" value="{{event.event_name}}">
+                    <label for="event_name"> Event Name: </label>
+                    <input type="text" name="event_name" required style="width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box;" value="{{event.event_name}}">
                 </div>
 
             <div style="margin-bottom: 20px; display: flex; align-items: center;">
@@ -49,8 +49,8 @@
                         <input type="number" name="row" required style="width: 100%;" value="{{seat.row}}" />
                     </div>
                     <div style="flex: 1;">
-                        <label for="seatNumber">Seat Number:</label>
-                        <input type="number" name="seatNumber" required style="width: 100%;" value="{{seat.seat_number}}" />
+                        <label for="seat_number">Seat Number:</label>
+                        <input type="number" name="seat_number" required style="width: 100%;" value="{{seat.seat_number}}" />
                     </div>
                 </div>
 
