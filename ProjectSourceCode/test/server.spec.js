@@ -83,7 +83,20 @@ describe('Testing /register API', () => {
 // and expects the API to return a status of 200.
 
 // Negative Testcase :
-// need to write negative testcase once /login is improved upon
+// API: /login
+// Input: {{username: 'testuser', password: 'wrongpassword'}
+// Expect: res.status == 200
+// Result: This test case should fail and return a status 200.
+// Explanation: The testcase will call the /login API with the following input
+// and expects the API to return a status of 200.
+
+// Negative Testcase :
+// API: /login
+// Input: {{username: 'nonexistentuser', password: 'testpass123'}
+// Expect: res.status == 200
+// Result: This test case should fail and return a status 200.
+// Explanation: The testcase will call the /login API with the following input
+// and expects the API to return a status of 200.
 
 describe('Testing /login API', () => {
   let agent;
@@ -128,10 +141,29 @@ describe('Testing /login API', () => {
     expect(res).to.have.status(200);
   });
   
-  // finish negative test after fixing /login
-  /*it('should fail to login', async () => {
-    
-  }); */ 
+  it('should fail to login with incorrect password', async () => {
+    // Attempt to login with incorrect password
+    const res = await agent.post('/login').send({
+      username: testUser.username,
+      password: 'wrongpassword'
+    });
+
+    // Expect login failure
+    expect(res).to.have.status(200);
+    expect(res.text).to.include('Incorrect Password');
+  });
+
+  it('should fail to login with non-existent username', async () => {
+    // Attempt to login with a non-existent username
+    const res = await agent.post('/login').send({
+      username: 'nonexistentuser',
+      password: testUser.password
+    });
+
+    // Expect redirection to the register page
+    expect(res).to.have.status(200);
+    expect(res.text).to.include('Username Not Found. Please Sign Up.');
+  });
 }); 
     
 
@@ -244,4 +276,6 @@ describe('Testing /addReview API', () => {
     expect(res).to.redirect;
   });
 }); 
+
+
   
